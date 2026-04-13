@@ -13,3 +13,6 @@
 [submodule "tofi"]
 	path = tofi
 	url = https://github.com/Loupax/tofi-config.git
+[submodule "foot"]
+	path = foot
+	url = https://github.com/Loupax/foot-config.git
