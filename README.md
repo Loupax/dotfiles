@@ -13,6 +13,12 @@ Personal configuration files managed as git submodules. Each config lives in its
 | `tofi/` | [Loupax/tofi-config](https://github.com/Loupax/tofi-config) | `~/.config/tofi` |
 | `foot/` | [Loupax/foot-config](https://github.com/Loupax/foot-config) | `~/.config/foot` |
 
+### Standalone files
+
+| File | Symlink target |
+|---|---|
+| `bashrc` | `~/.bashrc` |
+
 ## Initial setup
 
 Clone the repo with all submodules:
@@ -40,6 +46,7 @@ ln -s "$(pwd)/nvim" ~/.config/nvim
 ln -s "$(pwd)/tmux" ~/.config/tmux
 ln -s "$(pwd)/tofi" ~/.config/tofi
 ln -s "$(pwd)/foot" ~/.config/foot
+ln -s "$(pwd)/bashrc" ~/.bashrc
 ```
 
 **Note:** The tmux submodule only contains `tmux.conf`. After symlinking, install tpm and plugins:
