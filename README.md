@@ -10,6 +10,7 @@ Personal configuration files managed as git submodules. Each config lives in its
 | `sway-work/` | [Loupax/sway-config](https://github.com/Loupax/sway-config) | `~/.config/sway` |
 | `nvim/` | [Loupax/nvim.lua](https://github.com/Loupax/nvim.lua) | `~/.config/nvim` |
 | `tmux/` | [Loupax/tmux-config](https://github.com/Loupax/tmux-config) | `~/.config/tmux` |
+| `tofi/` | [Loupax/tofi-config](https://github.com/Loupax/tofi-config) | `~/.config/tofi` |
 
 ## Initial setup
 
@@ -36,6 +37,7 @@ ln -s "$(pwd)/waybar-work" ~/.config/waybar
 ln -s "$(pwd)/sway-work" ~/.config/sway
 ln -s "$(pwd)/nvim" ~/.config/nvim
 ln -s "$(pwd)/tmux" ~/.config/tmux
+ln -s "$(pwd)/tofi" ~/.config/tofi
 ```
 
 **Note:** The tmux submodule only contains `tmux.conf`. After symlinking, install tpm and plugins:
