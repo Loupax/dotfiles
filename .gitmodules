@@ -1,18 +1,3 @@
-[submodule "waybar-work"]
-	path = waybar-work
-	url = https://github.com/Loupax/waybar-config.git
-[submodule "sway-work"]
-	path = sway-work
-	url = https://github.com/Loupax/sway-config.git
 [submodule "nvim"]
 	path = nvim
 	url = https://github.com/Loupax/nvim.lua.git
-[submodule "tmux"]
-	path = tmux
-	url = https://github.com/Loupax/tmux-config.git
-[submodule "tofi"]
-	path = tofi
-	url = https://github.com/Loupax/tofi-config.git
-[submodule "foot"]
-	path = foot
-	url = https://github.com/Loupax/foot-config.git

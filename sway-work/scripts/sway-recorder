@@ -1,0 +1,28 @@
+#!/bin/bash
+
+output_dir="$HOME/Videos/Screencaps"
+mkdir -p "$output_dir"
+
+chosen_option=$(tofi <<EOF
+Record Region (MP4)
+Record Fullscreen (MP4)
+EOF
+)
+
+case "$chosen_option" in
+    "Record Region (MP4)")
+        geometry=$(slurp)
+
+        if [ -z "$geometry" ]; then
+            exit 0
+        fi
+
+        wf-recorder -g "$geometry" -a -f "$output_dir/$(date +'%Y-%m-%d_%H-%M-%S').mp4" &
+        ;;
+
+    "Record Fullscreen (MP4)")
+        wf-recorder -a -f "$output_dir/$(date +'%Y-%m-%d_%H-%M-%S')-fullscreen.mp4" &
+        ;;
+esac
+exit 0
+
