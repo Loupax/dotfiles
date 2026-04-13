@@ -9,6 +9,7 @@ Personal configuration files managed as git submodules. Each config lives in its
 | `waybar-work/` | [Loupax/waybar-config](https://github.com/Loupax/waybar-config) | `~/.config/waybar` |
 | `sway-work/` | [Loupax/sway-config](https://github.com/Loupax/sway-config) | `~/.config/sway` |
 | `nvim/` | [Loupax/nvim.lua](https://github.com/Loupax/nvim.lua) | `~/.config/nvim` |
+| `tmux/` | [Loupax/tmux-config](https://github.com/Loupax/tmux-config) | `~/.config/tmux` |
 
 ## Initial setup
 
@@ -34,6 +35,14 @@ Back up any existing configs, then create symlinks pointing to the submodule dir
 ln -s "$(pwd)/waybar-work" ~/.config/waybar
 ln -s "$(pwd)/sway-work" ~/.config/sway
 ln -s "$(pwd)/nvim" ~/.config/nvim
+ln -s "$(pwd)/tmux" ~/.config/tmux
+```
+
+**Note:** The tmux submodule only contains `tmux.conf`. After symlinking, install tpm and plugins:
+
+```bash
+git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+# Then press prefix + I inside tmux to install plugins
 ```
 
 To remove a symlink without affecting the repo:
