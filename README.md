@@ -11,6 +11,7 @@ Personal configuration files managed as git submodules. Each config lives in its
 | `nvim/` | [Loupax/nvim.lua](https://github.com/Loupax/nvim.lua) | `~/.config/nvim` |
 | `tmux/` | [Loupax/tmux-config](https://github.com/Loupax/tmux-config) | `~/.config/tmux` |
 | `tofi/` | [Loupax/tofi-config](https://github.com/Loupax/tofi-config) | `~/.config/tofi` |
+| `foot/` | [Loupax/foot-config](https://github.com/Loupax/foot-config) | `~/.config/foot` |
 
 ## Initial setup
 
@@ -38,6 +39,7 @@ ln -s "$(pwd)/sway-work" ~/.config/sway
 ln -s "$(pwd)/nvim" ~/.config/nvim
 ln -s "$(pwd)/tmux" ~/.config/tmux
 ln -s "$(pwd)/tofi" ~/.config/tofi
+ln -s "$(pwd)/foot" ~/.config/foot
 ```
 
 **Note:** The tmux submodule only contains `tmux.conf`. After symlinking, install tpm and plugins:
