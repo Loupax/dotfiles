@@ -7,3 +7,6 @@
 [submodule "nvim"]
 	path = nvim
 	url = https://github.com/Loupax/nvim.lua.git
+[submodule "tmux"]
+	path = tmux
+	url = https://github.com/Loupax/tmux-config.git
