@@ -1,3 +1,6 @@
 [submodule "waybar-work"]
 	path = waybar-work
 	url = https://github.com/Loupax/waybar-config.git
+[submodule "sway-work"]
+	path = sway-work
+	url = https://github.com/Loupax/sway-config.git
