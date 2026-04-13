@@ -4,3 +4,6 @@
 [submodule "sway-work"]
 	path = sway-work
 	url = https://github.com/Loupax/sway-config.git
+[submodule "nvim"]
+	path = nvim
+	url = https://github.com/Loupax/nvim.lua.git
