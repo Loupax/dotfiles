@@ -58,11 +58,20 @@ git submodule update --init --recursive
 
 ## Building dwl, somebar, someblocks
 
+Personal configs live at the repo root and must be symlinked before building:
+
+| File | Symlink target |
+|---|---|
+| `dwl-config.h` | `dwl/config.h` |
+| `somebar-config.hpp` | `somebar/src/config.hpp` |
+
+The `dwl-install` make target handles everything:
+
 ```bash
-cd dwl && make && sudo make install && cd ..
-cd somebar && meson setup build && sudo ninja -C build install && cd ..
-cd someblocks && sudo make install && cd ..
+make dwl-install
 ```
+
+This symlinks both configs, then builds and installs dwl, somebar, and someblocks.
 
 ## Creating symlinks
 
