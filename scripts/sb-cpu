@@ -1,0 +1,12 @@
+#!/bin/sh
+prev=/tmp/sb-cpu-prev
+read -r _ c1 c2 c3 c4 rest < /proc/stat
+total=$((c1+c2+c3+c4))
+idle=$c4
+if [ -f "$prev" ]; then
+    read -r p_total p_idle < "$prev"
+    dt=$((total - p_total))
+    di=$((idle - p_idle))
+    [ "$dt" -gt 0 ] && printf "cpu %d%%" "$(( (dt-di)*100/dt ))"
+fi
+printf "%d %d\n" "$total" "$idle" > "$prev"
