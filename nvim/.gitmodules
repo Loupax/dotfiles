@@ -1,0 +1,42 @@
+[submodule "pack/nvim/start/nvim-lspconfig"]
+	path = pack/nvim/start/nvim-lspconfig
+	url = https://github.com/neovim/nvim-lspconfig.git
+[submodule "pack/search/start/telescope.nvim"]
+	path = pack/search/start/telescope.nvim
+	url = https://github.com/nvim-telescope/telescope.nvim.git
+[submodule "pack/tools/start/planetary.nvim"]
+	path = pack/tools/start/planetary.nvim
+	url = https://github.com/nvim-lua/plenary.nvim.git
+[submodule "pack/nvim/start/cmp-nvim-lsp"]
+	path = pack/nvim/start/cmp-nvim-lsp
+	url = https://github.com/hrsh7th/cmp-nvim-lsp.git
+[submodule "pack/nvim/start/nvim-cmp"]
+	path = pack/nvim/start/nvim-cmp
+	url = https://github.com/hrsh7th/nvim-cmp.git
+[submodule "pack/themes/start/catppuccin"]
+	path = pack/themes/start/catppuccin
+	url = https://github.com/catppuccin/nvim.git
+[submodule "pack/nvim/start/lualine.nvim"]
+	path = pack/nvim/start/lualine.nvim
+	url = https://github.com/nvim-lualine/lualine.nvim.git
+[submodule "pack/nvim/start/nvim-web-devicons"]
+	path = pack/nvim/start/nvim-web-devicons
+	url = https://github.com/nvim-tree/nvim-web-devicons.git
+[submodule "pack/nvim/start/nvim-dap"]
+	path = pack/nvim/start/nvim-dap
+	url = https://github.com/mfussenegger/nvim-dap.git
+[submodule "pack/nvim/start/nvim-dap-ui"]
+	path = pack/nvim/start/nvim-dap-ui
+	url = https://github.com/rcarriga/nvim-dap-ui.git
+[submodule "pack/nvim/start/nvim-nio"]
+	path = pack/nvim/start/nvim-nio
+	url = https://github.com/nvim-neotest/nvim-nio.git
+[submodule "pack/nvim/start/gitsigns.nvim"]
+	path = pack/nvim/start/gitsigns.nvim
+	url = https://github.com/lewis6991/gitsigns.nvim.git
+[submodule "pack/tools/start/vimwiki"]
+	path = pack/tools/start/vimwiki
+	url = https://github.com/vimwiki/vimwiki.git
+[submodule "pack/tools/start/tidalcycles"]
+	path = pack/tools/start/tidalcycles
+	url = git@github.com:tidalcycles/vim-tidal.git
