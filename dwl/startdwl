@@ -2,7 +2,16 @@
 
 autostart() {
     swaybg -i ~/Pictures/wallpapers/1293302.jpg -m center -c 928374 &
-    waybar &
+    somebar &
+    someblocks &
+
+    # Signal someblocks on volume change (signal 2)
+    pactl subscribe 2>/dev/null | grep --line-buffered "sink" | \
+        while read -r _; do pkill -RTMIN+2 someblocks 2>/dev/null; done &
+
+    # Signal someblocks on media change (signal 3)
+    playerctl -F status 2>/dev/null | \
+        while read -r _; do pkill -RTMIN+3 someblocks 2>/dev/null; done &
 }
 
 exec dwl -s "$(declare -f autostart); autostart" "$@"
