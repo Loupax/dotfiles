@@ -1,0 +1,10 @@
+#!/bin/sh
+status=$(playerctl status 2>/dev/null) || exit
+case "$status" in
+    Playing) icon=">" ;;
+    Paused)  icon="||" ;;
+    *)       exit ;;
+esac
+artist=$(playerctl metadata artist 2>/dev/null)
+title=$(playerctl metadata title 2>/dev/null)
+printf "%s %s - %s" "$icon" "$artist" "$title"
