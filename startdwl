@@ -1,0 +1,8 @@
+#!/bin/sh
+
+autostart() {
+    swaybg -i ~/Pictures/wallpapers/1293302.jpg -m center -c 928374 &
+    waybar &
+}
+
+exec dwl -s "$(declare -f autostart); autostart" "$@"
