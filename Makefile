@@ -1,6 +1,7 @@
 DOTFILES := $(shell pwd)
 
 update:
+	git subtree pull --prefix=nvim nvim main --squash
 	git subtree pull --prefix=dwl dwl main --squash
 	git subtree pull --prefix=somebar somebar master --squash
 	git subtree pull --prefix=someblocks someblocks master --squash

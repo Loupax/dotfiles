@@ -1,6 +1,6 @@
 # dotfiles
 
-Personal configuration files, symlinked into place. The neovim config is a git submodule (it has its own repo with plugin submodules); dwl, somebar, and someblocks are git subtrees; everything else is tracked directly.
+Personal configuration files, symlinked into place. The neovim config and dwl, somebar, and someblocks are git subtrees; everything else is tracked directly.
 
 ## Structure
 
@@ -13,31 +13,25 @@ Personal configuration files, symlinked into place. The neovim config is a git s
 | `foot/` | `~/.config/foot` |
 | `bashrc` | `~/.bashrc` |
 
-### Submodule
-
-| Path | Repository | Symlink target |
-|---|---|---|
-| `nvim/` | [Loupax/nvim.lua](https://github.com/Loupax/nvim.lua) | `~/.config/nvim` |
-
 ### Subtrees
 
-| Path | Repository | Notes |
-|---|---|---|
-| `dwl/` | [Loupax/dwl](https://github.com/Loupax/dwl) | Wayland compositor — build and install from here |
-| `somebar/` | [Loupax/somebar](https://github.com/Loupax/somebar) | Status bar for dwl |
-| `someblocks/` | [Loupax/someblocks](https://github.com/Loupax/someblocks) | Status block runner for somebar |
+| Path | Repository | Branch | Symlink target |
+|---|---|---|---|
+| `nvim/` | [Loupax/nvim.lua](https://github.com/Loupax/nvim.lua) | main | `~/.config/nvim` |
+| `dwl/` | [Loupax/dwl](https://github.com/Loupax/dwl) | main | — |
+| `somebar/` | [Loupax/somebar](https://github.com/Loupax/somebar) | master | — |
+| `someblocks/` | [Loupax/someblocks](https://github.com/Loupax/someblocks) | master | — |
 
-Subtrees are regular directories — no special clone steps needed. To sync upstream changes:
+Subtrees are regular directories — no special clone steps needed. To sync all upstream changes:
 
 ```bash
-git subtree pull --prefix=dwl dwl main --squash
-git subtree pull --prefix=somebar somebar master --squash
-git subtree pull --prefix=someblocks someblocks master --squash
+make update
 ```
 
-To push local changes back to the individual repos:
+To push local changes back to an individual repo:
 
 ```bash
+git subtree push --prefix=nvim nvim main
 git subtree push --prefix=dwl dwl main
 git subtree push --prefix=somebar somebar master
 git subtree push --prefix=someblocks someblocks master
