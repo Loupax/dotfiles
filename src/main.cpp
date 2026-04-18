@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <cstdio>
-#include <sstream>
 #include <list>
 #include <optional>
 #include <utility>
@@ -21,8 +20,8 @@
 #include "wlr-layer-shell-unstable-v1-client-protocol.h"
 #include "xdg-output-unstable-v1-client-protocol.h"
 #include "xdg-shell-client-protocol.h"
+#include "net-tapesoftware-dwl-wm-unstable-v1-client-protocol.h"
 #include "common.hpp"
-#include "config.hpp"
 #include "bar.hpp"
 #include "line_buffer.hpp"
 
@@ -34,6 +33,7 @@ struct Monitor {
 	bool desiredVisibility {true};
 	bool hasData;
 	uint32_t tags;
+	wl_unique_ptr<znet_tapesoftware_dwl_wm_monitor_v1> dwlMonitor;
 };
 
 struct SeatPointer {
@@ -54,8 +54,6 @@ static void updatemon(Monitor &mon);
 static void onReady();
 static void setupStatusFifo();
 static void onStatus();
-static void onStdin();
-static void handleStdin(const std::string& line);
 static void updateVisibility(const std::string& name, bool(*updater)(bool));
 static void onGlobalAdd(void*, wl_registry* registry, uint32_t name, const char* interface, uint32_t version);
 static void onGlobalRemove(void*, wl_registry* registry, uint32_t name);
@@ -67,6 +65,9 @@ wl_display* display;
 wl_compositor* compositor;
 wl_shm* shm;
 zwlr_layer_shell_v1* wlrLayerShell;
+znet_tapesoftware_dwl_wm_v1* dwlWm;
+std::vector<std::string> tagNames;
+std::vector<std::string> layoutNames;
 static xdg_wm_base* xdgWmBase;
 static zxdg_output_manager_v1* xdgOutputManager;
 static wl_surface* cursorSurface;
@@ -85,6 +86,26 @@ static int statusFifoFd {-1};
 static int statusFifoWriter {-1};
 static bool quitting {false};
 
+void view(Monitor& m, const Arg& arg)
+{
+	znet_tapesoftware_dwl_wm_monitor_v1_set_tags(m.dwlMonitor.get(), arg.ui, 1);
+}
+void toggleview(Monitor& m, const Arg& arg)
+{
+	znet_tapesoftware_dwl_wm_monitor_v1_set_tags(m.dwlMonitor.get(), m.tags ^ arg.ui, 0);
+}
+void setlayout(Monitor& m, const Arg& arg)
+{
+	znet_tapesoftware_dwl_wm_monitor_v1_set_layout(m.dwlMonitor.get(), arg.ui);
+}
+void tag(Monitor& m, const Arg& arg)
+{
+	znet_tapesoftware_dwl_wm_monitor_v1_set_client_tags(m.dwlMonitor.get(), 0, arg.ui);
+}
+void toggletag(Monitor& m, const Arg& arg)
+{
+	znet_tapesoftware_dwl_wm_monitor_v1_set_client_tags(m.dwlMonitor.get(), ~0, arg.ui);
+}
 void spawn(Monitor&, const Arg& arg)
 {
 	if (fork() == 0) {
@@ -189,11 +210,64 @@ static const struct wl_seat_listener seatListener = {
 	.name = [](void*, wl_seat*, const char* name) { }
 };
 
+static const struct znet_tapesoftware_dwl_wm_v1_listener dwlWmListener = {
+	.tag = [](void*, znet_tapesoftware_dwl_wm_v1*, const char* name) {
+		tagNames.push_back(name);
+	},
+	.layout = [](void*, znet_tapesoftware_dwl_wm_v1*, const char* name) {
+		layoutNames.push_back(name);
+	},
+};
+
+static const struct znet_tapesoftware_dwl_wm_monitor_v1_listener dwlWmMonitorListener {
+	.selected = [](void* mv, znet_tapesoftware_dwl_wm_monitor_v1*, uint32_t selected) {
+		auto mon = static_cast<Monitor*>(mv);
+		if (selected) {
+			selmon = mon;
+		} else if (selmon == mon) {
+			selmon = nullptr;
+		}
+		mon->bar.setSelected(selected);
+	},
+	.tag = [](void* mv, znet_tapesoftware_dwl_wm_monitor_v1*, uint32_t tag, uint32_t state, uint32_t numClients, int32_t focusedClient) {
+		auto mon = static_cast<Monitor*>(mv);
+		if (tag >= 32 || tag >= tagNames.size()) return;
+		int tagState = TagState::None;
+		if (state & ZNET_TAPESOFTWARE_DWL_WM_MONITOR_V1_TAG_STATE_ACTIVE)
+			tagState |= TagState::Active;
+		if (state & ZNET_TAPESOFTWARE_DWL_WM_MONITOR_V1_TAG_STATE_URGENT)
+			tagState |= TagState::Urgent;
+		mon->bar.setTag(tag, tagState, numClients, focusedClient);
+		uint32_t mask = 1u << tag;
+		if (tagState & TagState::Active) {
+			mon->tags |= mask;
+		} else {
+			mon->tags &= ~mask;
+		}
+	},
+	.layout = [](void* mv, znet_tapesoftware_dwl_wm_monitor_v1*, uint32_t layout) {
+		auto mon = static_cast<Monitor*>(mv);
+		if (layout < layoutNames.size())
+			mon->bar.setLayout(layoutNames[layout]);
+	},
+	.title = [](void* mv, znet_tapesoftware_dwl_wm_monitor_v1*, const char* title) {
+		auto mon = static_cast<Monitor*>(mv);
+		mon->bar.setTitle(title);
+	},
+	.frame = [](void* mv, znet_tapesoftware_dwl_wm_monitor_v1*) {
+		auto mon = static_cast<Monitor*>(mv);
+		mon->hasData = true;
+		updatemon(*mon);
+	}
+};
+
 void setupMonitor(uint32_t name, wl_output* output) {
 	auto& monitor = monitors.emplace_back(Monitor {name, {}, wl_unique_ptr<wl_output> {output}});
 	monitor.bar.setStatus(lastStatus);
 	auto xdgOutput = zxdg_output_manager_v1_get_xdg_output(xdgOutputManager, monitor.wlOutput.get());
 	zxdg_output_v1_add_listener(xdgOutput, &xdgOutputListener, &monitor);
+	monitor.dwlMonitor.reset(znet_tapesoftware_dwl_wm_v1_get_monitor(dwlWm, monitor.wlOutput.get()));
+	znet_tapesoftware_dwl_wm_monitor_v1_add_listener(monitor.dwlMonitor.get(), &dwlWmMonitorListener, &monitor);
 }
 
 void updatemon(Monitor& mon)
@@ -219,6 +293,7 @@ void onReady()
 	requireGlobal(shm, "wl_shm");
 	requireGlobal(wlrLayerShell, "zwlr_layer_shell_v1");
 	requireGlobal(xdgOutputManager, "zxdg_output_manager_v1");
+	requireGlobal(dwlWm, "znet_tapesoftware_dwl_wm_v1");
 	setupStatusFifo();
 	wl_display_roundtrip(display); // roundtrip so we receive all dwl tags etc.
 
@@ -226,7 +301,6 @@ void onReady()
 	for (auto output : uninitializedOutputs) {
 		setupMonitor(output.first, output.second);
 	}
-	wl_display_roundtrip(display); // wait for xdg_output names before we read stdin
 }
 
 bool createFifo(std::string path)
@@ -271,68 +345,6 @@ void setupStatusFifo()
 			return;
 		}
 	}
-}
-
-static LineBuffer<512> stdinBuffer;
-static void onStdin()
-{
-	auto res = stdinBuffer.readLines(
-		[](void* p, size_t size) { return read(0, p, size); },
-		[](char* p, size_t size) { handleStdin({p, size}); });
-	if (res == 0) {
-		quitting = true;
-	}
-}
-
-static void handleStdin(const std::string& line)
-{
-	// this parses the lines that dwl sends in printstatus()
-	std::string monName, command;
-	auto stream = std::istringstream {line};
-	stream >> monName >> command;
-	if (!stream.good()) {
-		return;
-	}
-	auto mon = std::find_if(begin(monitors), end(monitors), [&](const Monitor& mon) {
-		return mon.xdgName == monName;
-	});
-	if (mon == end(monitors))
-		return;
-	if (command == "title") {
-		auto title = std::string {};
-		stream >> std::ws;
-		std::getline(stream, title);
-		mon->bar.setTitle(title);
-	} else if (command == "selmon") {
-		uint32_t selected;
-		stream >> selected;
-		mon->bar.setSelected(selected);
-		if (selected) {
-			selmon = &*mon;
-		} else if (selmon == &*mon) {
-			selmon = nullptr;
-		}
-	} else if (command == "tags") {
-		uint32_t occupied, tags, clientTags, urgent;
-		stream >> occupied >> tags >> clientTags >> urgent;
-		for (auto i=0u; i<tagNames.size(); i++) {
-			auto tagMask = 1 << i;
-			int state = TagState::None;
-			if (tags & tagMask)
-				state |= TagState::Active;
-			if (urgent & tagMask)
-				state |= TagState::Urgent;
-			mon->bar.setTag(i, state, occupied & tagMask ? 1 : 0, clientTags & tagMask ? 0 : -1);
-		}
-		mon->tags = tags;
-	} else if (command == "layout") {
-		auto layout = std::string {};
-		stream >> std::ws;
-		std::getline(stream, layout);
-		mon->bar.setLayout(layout);
-	}
-	mon->hasData = true;
-	updatemon(*mon);
 }
 
 const std::string prefixStatus = "status ";
@@ -407,6 +419,10 @@ void onGlobalAdd(void*, wl_registry* registry, uint32_t name, const char* interf
 	if (reg.handle(xdgOutputManager, zxdg_output_manager_v1_interface, 3)) return;
 	if (reg.handle(xdgWmBase, xdg_wm_base_interface, 2)) {
 		xdg_wm_base_add_listener(xdgWmBase, &xdgWmBaseListener, nullptr);
+		return;
+	}
+	if (reg.handle(dwlWm, znet_tapesoftware_dwl_wm_v1_interface, 1)) {
+		znet_tapesoftware_dwl_wm_v1_add_listener(dwlWm, &dwlWmListener, nullptr);
 		return;
 	}
 	if (wl_seat* wlSeat; reg.handle(wlSeat, wl_seat_interface, 7)) {
@@ -522,10 +538,6 @@ int main(int argc, char* argv[])
 		.fd = displayFd,
 		.events = POLLIN,
 	});
-	pollfds.push_back({
-		.fd = STDIN_FILENO,
-		.events = POLLIN,
-	});
 	if (fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK) < 0) {
 		diesys("fcntl F_SETFL");
 	}
@@ -550,8 +562,6 @@ int main(int argc, char* argv[])
 						ev.events = POLLIN;
 						waylandFlush();
 					}
-				} else if (ev.fd == STDIN_FILENO && (ev.revents & POLLIN)) {
-					onStdin();
 				} else if (ev.fd == statusFifoFd && (ev.revents & POLLIN)) {
 					onStatus();
 				} else if (ev.fd == signalSelfPipe[0] && (ev.revents & POLLIN)) {
