@@ -1,6 +1,6 @@
 # dotfiles
 
-Personal configuration files, symlinked into place. The neovim config is a git submodule (it has its own repo with plugin submodules); everything else is tracked directly.
+Personal configuration files, symlinked into place. The neovim config is a git submodule (it has its own repo with plugin submodules); dwl, somebar, and someblocks are git subtrees; everything else is tracked directly.
 
 ## Structure
 
@@ -19,6 +19,30 @@ Personal configuration files, symlinked into place. The neovim config is a git s
 |---|---|---|
 | `nvim/` | [Loupax/nvim.lua](https://github.com/Loupax/nvim.lua) | `~/.config/nvim` |
 
+### Subtrees
+
+| Path | Repository | Notes |
+|---|---|---|
+| `dwl/` | [Loupax/dwl](https://github.com/Loupax/dwl) | Wayland compositor — build and install from here |
+| `somebar/` | [Loupax/somebar](https://github.com/Loupax/somebar) | Status bar for dwl |
+| `someblocks/` | [Loupax/someblocks](https://github.com/Loupax/someblocks) | Status block runner for somebar |
+
+Subtrees are regular directories — no special clone steps needed. To sync upstream changes:
+
+```bash
+git subtree pull --prefix=dwl dwl main --squash
+git subtree pull --prefix=somebar somebar master --squash
+git subtree pull --prefix=someblocks someblocks master --squash
+```
+
+To push local changes back to the individual repos:
+
+```bash
+git subtree push --prefix=dwl dwl main
+git subtree push --prefix=somebar somebar master
+git subtree push --prefix=someblocks someblocks master
+```
+
 ## Initial setup
 
 ```bash
@@ -30,6 +54,14 @@ If you already cloned without `--recurse-submodules`:
 
 ```bash
 git submodule update --init --recursive
+```
+
+## Building dwl, somebar, someblocks
+
+```bash
+cd dwl && make && sudo make install && cd ..
+cd somebar && meson setup build && sudo ninja -C build install && cd ..
+cd someblocks && sudo make install && cd ..
 ```
 
 ## Creating symlinks
