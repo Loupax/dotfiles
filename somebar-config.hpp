@@ -17,8 +17,11 @@ constexpr ColorScheme colorActive = {Color(0xee, 0xee, 0xee), Color(0x00, 0x55, 
 constexpr const char* termcmd[] = {"foot", nullptr};
 
 
+constexpr const char* swaynccmd[] = {"swaync-client", "-t", "-sw", nullptr};
+
 constexpr Button buttons[] = {
 	{ ClkTagBar,       BTN_LEFT,   view,       {0} },
 	{ ClkTagBar,       BTN_RIGHT,  toggleview, {0} },
+	{ ClkStatusText,   BTN_LEFT,   spawn,      {.v = swaynccmd} },
 	{ ClkStatusText,   BTN_RIGHT,  spawn,      {.v = termcmd} },
 };

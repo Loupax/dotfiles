@@ -1,0 +1,3 @@
+#!/bin/sh
+count=$(swaync-client -c 2>/dev/null)
+[ "$count" -gt 0 ] 2>/dev/null && echo " $count" || echo ""

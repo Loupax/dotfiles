@@ -2,6 +2,7 @@
 
 autostart() {
     swaybg -i ~/Pictures/wallpapers/1293302.jpg -m center -c 928374 &
+    swaync &
     somebar &
     someblocks &
 
@@ -12,6 +13,10 @@ autostart() {
     # Signal someblocks on media change (signal 3)
     playerctl -F status 2>/dev/null | \
         while read -r _; do pkill -RTMIN+3 someblocks 2>/dev/null; done &
+
+    # Signal someblocks on notification change (signal 4)
+    swaync-client --subscribe 2>/dev/null | \
+        while read -r _; do pkill -RTMIN+4 someblocks 2>/dev/null; done &
 }
 
 exec dwl -s "$(declare -f autostart); autostart" "$@"

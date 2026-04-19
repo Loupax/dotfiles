@@ -119,6 +119,7 @@ static const Key keys[] = {
 	/* apps */
 	{ MODKEY,                    XKB_KEY_Return,            spawn,            {.v = termcmd} },
 	{ MODKEY,                    XKB_KEY_d,                 spawn,            {.v = menucmd} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_n,                 spawn,            SHCMD("swaync-client -t -sw") },
 
 	/* window management */
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_q,                killclient,       {0} },

@@ -1,5 +1,6 @@
 static const Block blocks[] = {
 	/* icon   command                                         interval  signal */
+	{"",  "$HOME/src/someblocks/scripts/sb-notifications",         0,        4},
 	{"",  "$HOME/src/someblocks/scripts/sb-recorder",              1,        0},
 	{"",  "$HOME/src/someblocks/scripts/sb-media",                 0,        3},
 	{"",  "$HOME/src/someblocks/scripts/sb-volume",                0,        2},
