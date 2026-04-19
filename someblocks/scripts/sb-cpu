@@ -7,6 +7,6 @@ if [ -f "$prev" ]; then
     read -r p_total p_idle < "$prev"
     dt=$((total - p_total))
     di=$((idle - p_idle))
-    [ "$dt" -gt 0 ] && printf "cpu %d%%" "$(( (dt-di)*100/dt ))"
+    [ "$dt" -gt 0 ] && printf "%d%%" "$(( (dt-di)*100/dt ))"
 fi
 printf "%d %d\n" "$total" "$idle" > "$prev"

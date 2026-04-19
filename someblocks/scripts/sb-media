@@ -1,8 +1,8 @@
 #!/bin/sh
 status=$(playerctl status 2>/dev/null) || exit
 case "$status" in
-    Playing) icon=">" ;;
-    Paused)  icon="||" ;;
+    Playing) icon="󰐊" ;;
+    Paused)  icon="󰏤" ;;
     *)       exit ;;
 esac
 artist=$(playerctl metadata artist 2>/dev/null)

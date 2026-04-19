@@ -9,11 +9,11 @@ if [ -f "$prev" ]; then
     dt=$(( now - p_ts ))
     [ "$dt" -gt 0 ] && bps=$(( (rx - p_rx) / dt )) || bps=0
     if [ "$bps" -gt 1048576 ]; then
-        printf "net %dMB/s" "$(( bps/1048576 ))"
+        printf "%dMB/s" "$(( bps/1048576 ))"
     elif [ "$bps" -gt 1024 ]; then
-        printf "net %dKB/s" "$(( bps/1024 ))"
+        printf "%dKB/s" "$(( bps/1024 ))"
     else
-        printf "net %dB/s" "$bps"
+        printf "%dB/s" "$bps"
     fi
 fi
 printf "%d %d\n" "$rx" "$(date +%s)" > "$prev"

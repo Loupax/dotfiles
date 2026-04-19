@@ -1,2 +1,8 @@
 #!/bin/sh
-[ -f /tmp/dwl-keyboard-layout ] && tr -d '\n' < /tmp/dwl-keyboard-layout || echo "us"
+layout=$([ -f /tmp/dwl-keyboard-layout ] && tr -d '\n' < /tmp/dwl-keyboard-layout || echo "us")
+case "$layout" in
+    us) echo "🇺🇸" ;;
+    de) echo "🇩🇪" ;;
+    gr) echo "🇬🇷" ;;
+    *)  echo "$layout" ;;
+esac

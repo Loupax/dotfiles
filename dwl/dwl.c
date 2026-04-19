@@ -1710,11 +1710,22 @@ keypressmod(struct wl_listener *listener, void *data)
 		if (xkb_state) {
 			xkb_layout_index_t idx = xkb_state_serialize_layout(xkb_state, XKB_STATE_LAYOUT_EFFECTIVE);
 			if (idx != last_layout) {
-				struct xkb_keymap *keymap = xkb_state_get_keymap(xkb_state);
-				const char *name = xkb_keymap_layout_get_name(keymap, idx);
-				if (name) {
+				const char *layouts = xkb_rules.layout;
+				const char *name = layouts;
+				for (xkb_layout_index_t i = 0; i < idx; i++) {
+					name = strchr(name, ',');
+					if (!name) { name = layouts; break; }
+					name++;
+				}
+				char shortname[16];
+				const char *end = strchr(name, ',');
+				size_t len = end ? (size_t)(end - name) : strlen(name);
+				if (len >= sizeof(shortname)) len = sizeof(shortname) - 1;
+				strncpy(shortname, name, len);
+				shortname[len] = '\0';
+				if (shortname[0]) {
 					FILE *f = fopen("/tmp/dwl-keyboard-layout", "w");
-					if (f) { fprintf(f, "%s\n", name); fclose(f); }
+					if (f) { fprintf(f, "%s\n", shortname); fclose(f); }
 					system("pkill -RTMIN+1 someblocks 2>/dev/null");
 				}
 				last_layout = idx;
