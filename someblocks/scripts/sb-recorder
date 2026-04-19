@@ -1,2 +1,2 @@
 #!/bin/sh
-pgrep -x wf-recorder > /dev/null && echo "[REC]"
+pgrep -x wf-recorder > /dev/null && echo "󰑊  [REC]"

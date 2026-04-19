@@ -3,5 +3,5 @@ vol=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null)
 if echo "$vol" | grep -q MUTED; then
     echo "MUTE"
 else
-    printf "%d%%" "$(echo "$vol" | awk '{printf "%d", $2*100}')"
+    printf "%3d%%" "$(echo "$vol" | awk '{printf "%d", $2*100}')"
 fi

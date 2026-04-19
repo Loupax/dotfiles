@@ -1,10 +1,31 @@
 #!/bin/sh
 bat=/sys/class/power_supply/BAT0
 cap=$(cat "$bat/capacity")
-case $(cat "$bat/status") in
-    Charging)    icon="󰂄" ;;
-    Discharging) icon="󰁹" ;;
-    Full)        icon="󰁹" ;;
-    *)           icon="󰂑" ;;
-esac
-printf "%s %d%%" "$icon" "$cap"
+status=$(cat "$bat/status")
+
+if [ "$status" = "Charging" ]; then
+    if   [ "$cap" -ge 90 ]; then icon="󰂄"
+    elif [ "$cap" -ge 80 ]; then icon="󰂋"
+    elif [ "$cap" -ge 70 ]; then icon="󰂊"
+    elif [ "$cap" -ge 60 ]; then icon="󰢝"
+    elif [ "$cap" -ge 50 ]; then icon="󰂉"
+    elif [ "$cap" -ge 40 ]; then icon="󰂈"
+    elif [ "$cap" -ge 30 ]; then icon="󰂇"
+    elif [ "$cap" -ge 20 ]; then icon="󰂆"
+    else                         icon="󰢜"
+    fi
+else
+    if   [ "$cap" -ge 90 ]; then icon="󰁹"
+    elif [ "$cap" -ge 80 ]; then icon="󰂂"
+    elif [ "$cap" -ge 70 ]; then icon="󰂁"
+    elif [ "$cap" -ge 60 ]; then icon="󰂀"
+    elif [ "$cap" -ge 50 ]; then icon="󰁿"
+    elif [ "$cap" -ge 40 ]; then icon="󰁾"
+    elif [ "$cap" -ge 30 ]; then icon="󰁽"
+    elif [ "$cap" -ge 20 ]; then icon="󰁼"
+    elif [ "$cap" -ge 10 ]; then icon="󰁻"
+    else                         icon="󰂎"
+    fi
+fi
+
+printf "%s %3d%%" "$icon" "$cap"

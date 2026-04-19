@@ -40,4 +40,4 @@ for v in $buckets; do
     else                       printf '\xe2\x96\x81'
     fi
 done
-printf ' %d%%\n' "$pct"
+printf ' %3d%%\n' "$pct"

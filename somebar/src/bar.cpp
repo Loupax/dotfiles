@@ -93,6 +93,7 @@ Bar::Bar()
 	_layoutCmp = createComponent();
 	_titleCmp = createComponent();
 	_statusCmp = createComponent();
+	_statusCenterCmp = createComponent();
 }
 
 const wl_surface* Bar::surface() const
@@ -156,7 +157,20 @@ void Bar::setTitle(const std::string& title)
 }
 void Bar::setStatus(const std::string& status)
 {
-	_statusCmp.setText(status);
+	auto split = status.find('\x01');
+	if (split != std::string::npos) {
+		auto right = status.substr(0, split);
+		auto center = status.substr(split + 1);
+		// trim trailing inter-block delimiter left by someblocks
+		static const std::string delim = "  |  ";
+		if (right.size() >= delim.size() && right.compare(right.size() - delim.size(), delim.size(), delim) == 0)
+			right = right.substr(0, right.size() - delim.size());
+		_statusCenterCmp.setText(center);
+		_statusCmp.setText(right);
+	} else {
+		_statusCenterCmp.setText({});
+		_statusCmp.setText(status);
+	}
 }
 
 void Bar::invalidate()
@@ -260,15 +274,23 @@ void Bar::renderTags()
 void Bar::renderStatus()
 {
 	pango_cairo_update_layout(_painter, _statusCmp.pangoLayout.get());
+	pango_cairo_update_layout(_painter, _statusCenterCmp.pangoLayout.get());
 	beginBg();
-	auto start = _bufs->width - _statusCmp.width() - paddingX*2;
-	cairo_rectangle(_painter, _x, 0, _bufs->width-_x+start, _bufs->height);
+	auto rightStart = _bufs->width - _statusCmp.width() - paddingX*2;
+	cairo_rectangle(_painter, _x, 0, _bufs->width - _x, _bufs->height);
 	cairo_fill(_painter);
 
-	_x = start;
 	setColorScheme(colorInactive, false);
-	if (_statusCmp.width() > 0)
-	{
+	if (_statusCenterCmp.width() > 0) {
+		auto centerStart = (_bufs->width - _statusCenterCmp.width() - paddingX*2) / 2;
+		auto savedX = _x;
+		_x = centerStart;
+		renderComponent(_statusCenterCmp);
+		_x = savedX;
+	}
+
+	_x = rightStart;
+	if (_statusCmp.width() > 0) {
 		renderComponent(_statusCmp);
 	}
 }
