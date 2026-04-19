@@ -255,6 +255,10 @@ void Bar::render()
 void Bar::renderTags()
 {
 	for (auto &tag : _tags) {
+		if (!tag.numClients && !(tag.state & TagState::Active)) {
+			tag.component.x = _x;
+			continue;
+		}
 		setColorScheme(
 			tag.state & TagState::Active ? colorActive : colorInactive,
 			tag.state & TagState::Urgent);
