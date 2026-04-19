@@ -13,4 +13,4 @@ static const Block blocks[] = {
 };
 
 static char delim[64] = "  |  ";
-static unsigned int delimLen = 63;
+static unsigned int delimLen = 5;

@@ -14,7 +14,7 @@
 #define SIGMINUS		SIGRTMIN
 #endif
 #define LENGTH(X)               (sizeof(X) / sizeof (X[0]))
-#define CMDLENGTH		50
+#define CMDLENGTH		128
 #define MIN( a, b ) ( ( a < b) ? a : b )
 #define STATUSLENGTH (LENGTH(blocks) * CMDLENGTH + 1)
 
@@ -196,7 +196,7 @@ int main(int argc, char** argv)
 {
 	for (int i = 0; i < argc; i++) {//Handle command line arguments
 		if (!strcmp("-d",argv[i]))
-			strncpy(delim, argv[++i], delimLen);
+			strncpy(delim, argv[++i], sizeof(delim)-1);
 		else if (!strcmp("-p",argv[i]))
 			writestatus = pstdout;
 		else if (!strcmp("-s",argv[i]))

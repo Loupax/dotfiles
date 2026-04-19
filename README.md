@@ -56,6 +56,20 @@ If you already cloned without `--recurse-submodules`:
 git submodule update --init --recursive
 ```
 
+## Dependencies
+
+Before building, install the required packages (Arch Linux):
+
+```bash
+sudo pacman -S xorg-xwayland xcb-util-icccm swaync
+```
+
+| Package | Purpose |
+|---|---|
+| `xorg-xwayland` | X11 compatibility layer — required to run X11 apps (Steam, etc.) |
+| `xcb-util-icccm` | Required to build dwl with Xwayland support |
+| `swaync` | Notification daemon |
+
 ## Building dwl, somebar, someblocks
 
 Personal configs live at the repo root and must be symlinked before building:
@@ -72,6 +86,16 @@ make dwl-install
 ```
 
 This symlinks both configs, then builds and installs dwl, somebar, and someblocks.
+
+## X11 apps (Steam, etc.)
+
+Xwayland is started automatically on `:1` when dwl launches. `DISPLAY` and `XAUTHORITY` are propagated to all new terminals via `dbus-update-activation-environment`, so X11 apps work without any manual setup:
+
+```bash
+steam
+```
+
+No additional configuration needed after `make dwl-install` and a session restart.
 
 ## Creating symlinks
 
