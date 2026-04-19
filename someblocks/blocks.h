@@ -1,5 +1,6 @@
 static const Block blocks[] = {
 	/* icon   command                                         interval  signal */
+	{"󰃭 ",  "date '+%I:%M %p - %a, %d %b %Y' | tr -d '\\n'; printf '\\001'", 30,       0},
 	{"󰤨 ",  "$HOME/src/dotfiles/someblocks/scripts/sb-network",               2,        0},
 	{"",  "$HOME/src/dotfiles/someblocks/scripts/sb-notifications",            0,        4},
 	{"",  "$HOME/src/dotfiles/someblocks/scripts/sb-recorder",                1,        0},
@@ -9,7 +10,6 @@ static const Block blocks[] = {
 	{"󰍛 ",  "$HOME/src/dotfiles/someblocks/scripts/sb-memory",                2,        0},
 	{"",  "$HOME/src/dotfiles/someblocks/scripts/sb-battery",               30,       0},
 	{"",   "$HOME/src/dotfiles/someblocks/scripts/sb-lang",                  0,        1},
-	{"",  "printf '\\001󰃭 '; date '+%I:%M %p - %a, %d %b %Y'",            30,       0},
 };
 
 static char delim[64] = "  |  ";

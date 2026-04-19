@@ -159,12 +159,12 @@ void Bar::setStatus(const std::string& status)
 {
 	auto split = status.find('\x01');
 	if (split != std::string::npos) {
-		auto right = status.substr(0, split);
-		auto center = status.substr(split + 1);
-		// trim trailing inter-block delimiter left by someblocks
+		auto center = status.substr(0, split);
+		auto right = status.substr(split + 1);
+		// trim leading inter-block delimiter left by someblocks
 		static const std::string delim = "  |  ";
-		if (right.size() >= delim.size() && right.compare(right.size() - delim.size(), delim.size(), delim) == 0)
-			right = right.substr(0, right.size() - delim.size());
+		if (right.size() >= delim.size() && right.compare(0, delim.size(), delim) == 0)
+			right = right.substr(delim.size());
 		_statusCenterCmp.setText(center);
 		_statusCmp.setText(right);
 	} else {
