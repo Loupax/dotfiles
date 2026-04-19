@@ -241,7 +241,19 @@ void Bar::render()
 	renderTags();
 	setColorScheme(_selected ? colorActive : colorInactive);
 	renderComponent(_layoutCmp);
+
+	// cap title width so it doesn't overlap the status area
+	auto rightBoundary = _bufs->width - _statusCmp.width() - paddingX*2;
+	if (_statusCenterCmp.width() > 0) {
+		auto centerStart = (_bufs->width - _statusCenterCmp.width() - paddingX*2) / 2;
+		rightBoundary = std::min(rightBoundary, centerStart);
+	}
+	auto titleAvail = rightBoundary - _x - paddingX;
+	pango_layout_set_width(_titleCmp.pangoLayout.get(), std::max<int>(0, titleAvail) * PANGO_SCALE);
+	pango_layout_set_ellipsize(_titleCmp.pangoLayout.get(), PANGO_ELLIPSIZE_END);
 	renderComponent(_titleCmp);
+	pango_layout_set_width(_titleCmp.pangoLayout.get(), -1);
+
 	renderStatus();
 
 	_painter = nullptr;
