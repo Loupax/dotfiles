@@ -1,4 +1,44 @@
 #!/bin/sh
+hist=/tmp/sb-memory-hist
 total=$(awk '/^MemTotal/ { print $2 }' /proc/meminfo)
 avail=$(awk '/^MemAvailable/ { print $2 }' /proc/meminfo)
-printf "%d%%" "$(( (total-avail)*100/total ))"
+pct=$(( (total-avail)*100/total ))
+
+prev=$(cat "$hist" 2>/dev/null)
+updated=$(printf "%s %d" "$prev" "$pct" | tr ' ' '\n' | grep -v '^$' | tail -300 | tr '\n' ' ' | sed 's/ $//')
+echo "$updated" > "$hist"
+
+# bucket 300 samples into 6 display chars
+buckets=$(echo "$updated" | tr ' ' '\n' | grep -v '^$' | awk '
+BEGIN { n=0; sum=0; bucket=0 }
+{
+    vals[n++] = $1
+}
+END {
+    total = n
+    for (b = 0; b < 6; b++) {
+        start = int(b * total / 6)
+        end   = int((b+1) * total / 6)
+        if (end <= start) end = start + 1
+        sum = 0; cnt = 0
+        for (i = start; i < end && i < total; i++) { sum += vals[i]; cnt++ }
+        if (cnt > 0) printf "%d ", int(sum/cnt)
+    }
+}')
+
+count=$(echo "$buckets" | wc -w)
+pad=$(( 6 - count ))
+while [ "$pad" -gt 0 ]; do printf ' '; pad=$(( pad - 1 )); done
+
+for v in $buckets; do
+    if   [ "$v" -ge 88 ]; then printf '\xe2\x96\x88'
+    elif [ "$v" -ge 75 ]; then printf '\xe2\x96\x87'
+    elif [ "$v" -ge 63 ]; then printf '\xe2\x96\x86'
+    elif [ "$v" -ge 50 ]; then printf '\xe2\x96\x85'
+    elif [ "$v" -ge 38 ]; then printf '\xe2\x96\x84'
+    elif [ "$v" -ge 25 ]; then printf '\xe2\x96\x83'
+    elif [ "$v" -ge 13 ]; then printf '\xe2\x96\x82'
+    else                       printf '\xe2\x96\x81'
+    fi
+done
+printf ' %d%%\n' "$pct"
