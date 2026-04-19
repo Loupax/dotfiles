@@ -1,10 +1,14 @@
 #!/bin/sh
 
 autostart() {
+    rm -f /tmp/.X11-unix/X0 /tmp/.X0-lock
+    xauth add :1 . $(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
+    Xwayland :1 -auth ~/.Xauthority -nolisten tcp -rootless &
     swaybg -i ~/Pictures/wallpapers/1293302.jpg -m center -c 928374 &
     swaync &
     somebar &
     someblocks &
+    dbus-update-activation-environment --systemd DISPLAY=:1 XAUTHORITY=~/.Xauthority
 
     # Signal someblocks on volume change (signal 2)
     pactl subscribe 2>/dev/null | grep --line-buffered "sink" | \
