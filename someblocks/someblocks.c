@@ -196,7 +196,7 @@ int main(int argc, char** argv)
 {
 	for (int i = 0; i < argc; i++) {//Handle command line arguments
 		if (!strcmp("-d",argv[i]))
-			strncpy(delim, argv[++i], delimLen);
+			strncpy(delim, argv[++i], sizeof(delim)-1);
 		else if (!strcmp("-p",argv[i]))
 			writestatus = pstdout;
 		else if (!strcmp("-s",argv[i]))

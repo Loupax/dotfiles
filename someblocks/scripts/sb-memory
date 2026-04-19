@@ -1,16 +1,15 @@
 #!/bin/sh
-hist=/tmp/sb-memory-hist
+hist="${XDG_RUNTIME_DIR:-/tmp}/sb-memory-hist"
 total=$(awk '/^MemTotal/ { print $2 }' /proc/meminfo)
 avail=$(awk '/^MemAvailable/ { print $2 }' /proc/meminfo)
 pct=$(( (total-avail)*100/total ))
 
-prev=$(cat "$hist" 2>/dev/null)
-updated=$(printf "%s %d" "$prev" "$pct" | tr ' ' '\n' | grep -v '^$' | tail -300 | tr '\n' ' ' | sed 's/ $//')
-echo "$updated" > "$hist"
+printf '%d\n' "$pct" >> "$hist"
+updated=$(tail -300 "$hist")
+printf '%s\n' "$updated" > "$hist"
 
 # bucket 300 samples into 6 display chars
-buckets=$(echo "$updated" | tr ' ' '\n' | grep -v '^$' | awk '
-BEGIN { n=0; sum=0; bucket=0 }
+buckets=$(printf '%s\n' "$updated" | awk '
 {
     vals[n++] = $1
 }
@@ -26,7 +25,7 @@ END {
     }
 }')
 
-count=$(echo "$buckets" | wc -w)
+count=$(printf '%s\n' "$buckets" | wc -w)
 pad=$(( 6 - count ))
 while [ "$pad" -gt 0 ]; do printf ' '; pad=$(( pad - 1 )); done
 
