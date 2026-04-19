@@ -7,7 +7,7 @@ static const Block blocks[] = {
 	{"󰤨 ",  "$HOME/src/someblocks/scripts/sb-network",               2,        0},
 	{"󰻠 ",  "$HOME/src/someblocks/scripts/sb-cpu",                   2,        0},
 	{"󰍛 ",  "$HOME/src/someblocks/scripts/sb-memory",                2,        0},
-	{"󰁹 ",  "$HOME/src/someblocks/scripts/sb-battery",               30,       0},
+	{"",  "$HOME/src/someblocks/scripts/sb-battery",               30,       0},
 	{"󰌌 ",  "$HOME/src/someblocks/scripts/sb-lang",                  0,        1},
 	{"󰃭 ",  "date '+%I:%M %p - %a, %d %b %Y'",               30,       0},
 };
