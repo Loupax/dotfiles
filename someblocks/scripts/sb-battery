@@ -2,9 +2,9 @@
 bat=/sys/class/power_supply/BAT0
 cap=$(cat "$bat/capacity")
 case $(cat "$bat/status") in
-    Charging)    icon="+" ;;
-    Discharging) icon="-" ;;
-    Full)        icon="=" ;;
-    *)           icon="?" ;;
+    Charging)    icon="󰂄" ;;
+    Discharging) icon="󰁹" ;;
+    Full)        icon="󰁹" ;;
+    *)           icon="󰂑" ;;
 esac
-printf "bat %s%d%%" "$icon" "$cap"
+printf "%s %d%%" "$icon" "$cap"
