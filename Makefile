@@ -17,3 +17,5 @@ dwl-install:
 	meson setup --reconfigure somebar/build somebar
 	ninja -C somebar/build && sudo ninja -C somebar/build install
 	sudo $(MAKE) -C someblocks install
+
+install: dwl-install
