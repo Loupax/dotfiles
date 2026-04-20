@@ -1,10 +1,12 @@
 #!/bin/bash
 
+DOTFILES="$(dirname "$(readlink -f "$0")")/.."
+
 autostart() {
     rm -f /tmp/.X11-unix/X1 /tmp/.X1-lock
     xauth add :1 . $(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
     Xwayland :1 -auth ~/.Xauthority -nolisten tcp -rootless &
-    swaybg -i "$(dirname "$(readlink -f "$0")")/../wallpaper.jpg" -m fill -c 1B2E4D &
+    swaybg -i "$DOTFILES/wallpaper.jpg" -m fill -c 1B2E4D &
     [ -n "$XDG_RUNTIME_DIR" ] && rm -f "$XDG_RUNTIME_DIR"/somebar-*
     swaync &
     somebar &
@@ -24,4 +26,4 @@ autostart() {
         while read -r _; do pkill -RTMIN+4 someblocks 2>/dev/null; done &
 }
 
-exec dwl -s "$(declare -f autostart); autostart" "$@"
+exec dwl -s "DOTFILES='$DOTFILES'; $(declare -f autostart); autostart" "$@"
