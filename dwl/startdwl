@@ -4,8 +4,8 @@ autostart() {
     rm -f /tmp/.X11-unix/X1 /tmp/.X1-lock
     xauth add :1 . $(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
     Xwayland :1 -auth ~/.Xauthority -nolisten tcp -rootless &
-    swaybg -i ~/src/dotfiles/wallpaper.jpg -m fill -c 1B2E4D &
-    rm -f "${XDG_RUNTIME_DIR}"/somebar-*
+    swaybg -i "$(dirname "$(readlink -f "$0")")/../wallpaper.jpg" -m fill -c 1B2E4D &
+    [ -n "$XDG_RUNTIME_DIR" ] && rm -f "$XDG_RUNTIME_DIR"/somebar-*
     swaync &
     somebar &
     someblocks &
