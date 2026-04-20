@@ -14,6 +14,10 @@ const zwlr_layer_surface_v1_listener Bar::_layerSurfaceListener = {
 	[](void* owner, zwlr_layer_surface_v1*, uint32_t serial, uint32_t width, uint32_t height)
 	{
 		static_cast<Bar*>(owner)->layerSurfaceConfigure(serial, width, height);
+	},
+	[](void* owner, zwlr_layer_surface_v1*)
+	{
+		static_cast<Bar*>(owner)->hide();
 	}
 };
 const wl_callback_listener Bar::_frameListener = {
@@ -217,7 +221,7 @@ void Bar::layerSurfaceConfigure(uint32_t serial, uint32_t width, uint32_t height
 	if (_bufs && width == _bufs->width && height == _bufs->height) {
 		return;
 	}
-	_bufs.emplace(width, height, WL_SHM_FORMAT_XRGB8888);
+	_bufs.emplace(width, height, WL_SHM_FORMAT_ARGB8888);
 	render();
 }
 
@@ -235,6 +239,10 @@ void Bar::render()
 		)};
 	auto painter = wl_unique_ptr<cairo_t> {cairo_create(img.get())};
 	_painter = painter.get();
+	cairo_save(_painter);
+	cairo_set_operator(_painter, CAIRO_OPERATOR_CLEAR);
+	cairo_paint(_painter);
+	cairo_restore(_painter);
 	pango_cairo_update_context(_painter, _pangoContext.get());
 	_x = 0;
 

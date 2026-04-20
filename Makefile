@@ -13,8 +13,9 @@ push:
 	git subtree push --prefix=wlroots wlroots master
 
 wlroots-build:
-	meson setup wlroots/build wlroots
+	meson setup --wrap-mode=default --prefix=$(DOTFILES)/wlroots/install wlroots/build wlroots
 	ninja -C wlroots/build
+	ninja -C wlroots/build install
 
 dwl-install: wlroots-build
 	ln -sf $(DOTFILES)/dwl-config.h $(DOTFILES)/dwl/config.h

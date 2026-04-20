@@ -30,14 +30,14 @@ pad=$(( 6 - count ))
 while [ "$pad" -gt 0 ]; do printf ' '; pad=$(( pad - 1 )); done
 
 for v in $buckets; do
-    if   [ "$v" -ge 88 ]; then printf '\xe2\x96\x88'
-    elif [ "$v" -ge 75 ]; then printf '\xe2\x96\x87'
-    elif [ "$v" -ge 63 ]; then printf '\xe2\x96\x86'
-    elif [ "$v" -ge 50 ]; then printf '\xe2\x96\x85'
-    elif [ "$v" -ge 38 ]; then printf '\xe2\x96\x84'
-    elif [ "$v" -ge 25 ]; then printf '\xe2\x96\x83'
-    elif [ "$v" -ge 13 ]; then printf '\xe2\x96\x82'
-    else                       printf '\xe2\x96\x81'
+    if   [ "$v" -ge 88 ]; then printf '█'
+    elif [ "$v" -ge 75 ]; then printf '▇'
+    elif [ "$v" -ge 63 ]; then printf '▆'
+    elif [ "$v" -ge 50 ]; then printf '▅'
+    elif [ "$v" -ge 38 ]; then printf '▄'
+    elif [ "$v" -ge 25 ]; then printf '▃'
+    elif [ "$v" -ge 13 ]; then printf '▂'
+    else                       printf '▁'
     fi
 done
 printf ' %3d%%\n' "$pct"

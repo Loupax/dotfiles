@@ -1,6 +1,6 @@
 # dotfiles
 
-Personal configuration files, symlinked into place. The neovim config is a git submodule (it has its own repo with plugin submodules); dwl, somebar, and someblocks are git subtrees; everything else is tracked directly.
+Personal configuration files, symlinked into place. The neovim config is a git submodule (it has its own repo with plugin submodules); dwl, somebar, someblocks, and wlroots are git subtrees; everything else is tracked directly.
 
 ## Structure
 
@@ -26,21 +26,18 @@ Personal configuration files, symlinked into place. The neovim config is a git s
 | `dwl/` | [Loupax/dwl](https://github.com/Loupax/dwl) | Wayland compositor — build and install from here |
 | `somebar/` | [Loupax/somebar](https://github.com/Loupax/somebar) | Status bar for dwl |
 | `someblocks/` | [Loupax/someblocks](https://github.com/Loupax/someblocks) | Status block runner for somebar |
+| `wlroots/` | [Loupax/wlroots](https://github.com/Loupax/wlroots) | Vendored wlroots 0.19 — built locally, not installed system-wide |
 
 Subtrees are regular directories — no special clone steps needed. To sync upstream changes:
 
 ```bash
-git subtree pull --prefix=dwl dwl main --squash
-git subtree pull --prefix=somebar somebar master --squash
-git subtree pull --prefix=someblocks someblocks master --squash
+make update
 ```
 
 To push local changes back to the individual repos:
 
 ```bash
-git subtree push --prefix=dwl dwl main
-git subtree push --prefix=somebar somebar master
-git subtree push --prefix=someblocks someblocks master
+make push
 ```
 
 ## Initial setup
@@ -58,17 +55,31 @@ git submodule update --init --recursive
 
 ## Dependencies
 
-Before building, install the required packages (Arch Linux):
+Before building, install the required packages.
+
+**Arch Linux:**
 
 ```bash
-sudo pacman -S xorg-xwayland xcb-util-icccm swaync
+sudo pacman -S xorg-xwayland xcb-util-icccm swaync meson ninja
+```
+
+**Ubuntu 24.04:**
+
+```bash
+sudo apt-get install -y libinput-dev libxcb-icccm4-dev libpixman-1-dev libdrm-dev \
+  libxkbcommon-dev wayland-protocols libseat-dev hwdata libdisplay-info-dev \
+  libliftoff-dev libxcb-composite0-dev libxcb-render0-dev libxcb-xinput-dev \
+  libxcb-ewmh-dev libxcb-res0-dev xwayland swaync meson ninja-build
 ```
 
 | Package | Purpose |
 |---|---|
 | `xorg-xwayland` | X11 compatibility layer — required to run X11 apps (Steam, etc.) |
-| `xcb-util-icccm` | Required to build dwl with Xwayland support |
+| `xcb-util-icccm` / `libxcb-icccm4-dev` | Required to build dwl with Xwayland support |
 | `swaync` | Notification daemon |
+| `meson`, `ninja` | Build system for wlroots and somebar |
+
+wlroots is vendored as a subtree and built from source, so it does not need to be installed as a system package. On Ubuntu, meson will automatically download and build any dependencies (like wayland and pixman) that are too old in the system packages.
 
 ## Building dwl, somebar, someblocks
 
@@ -79,13 +90,13 @@ Personal configs live at the repo root and must be symlinked before building:
 | `dwl-config.h` | `dwl/config.h` |
 | `somebar-config.hpp` | `somebar/src/config.hpp` |
 
-The `dwl-install` make target handles everything:
+The `install` make target handles everything:
 
 ```bash
-make dwl-install
+make install
 ```
 
-This symlinks both configs, then builds and installs dwl, somebar, and someblocks.
+This builds wlroots to a local prefix (`wlroots/install/`), symlinks both configs, then builds and installs dwl, somebar, and someblocks.
 
 ## X11 apps (Steam, etc.)
 
