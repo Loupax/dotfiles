@@ -1,14 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 
-autostart() {
-    rm -f /tmp/.X11-unix/X1 /tmp/.X1-lock
-    xauth add :1 . $(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
-    Xwayland :1 -auth ~/.Xauthority -nolisten tcp -rootless &
-    swaybg -i ~/Pictures/wallpapers/1293302.jpg -m center -c 928374 &
+DOTFILES="$(dirname "$(readlink -f "$0")")/.."
+
+start_bars() {
+    swaybg -i "$DOTFILES/wallpaper.jpg" -m fill -c 1B2E4D &
+    [ -n "$XDG_RUNTIME_DIR" ] && rm -f "$XDG_RUNTIME_DIR"/somebar-*
     swaync &
     somebar &
     someblocks &
-    dbus-update-activation-environment --systemd DISPLAY=:1 XAUTHORITY=~/.Xauthority
 
     # Signal someblocks on volume change (signal 2)
     pactl subscribe 2>/dev/null | grep --line-buffered "sink" | \
@@ -23,4 +22,15 @@ autostart() {
         while read -r _; do pkill -RTMIN+4 someblocks 2>/dev/null; done &
 }
 
-exec dwl -s "$(declare -f autostart); autostart" "$@"
+autostart() {
+    rm -f /tmp/.X11-unix/X1 /tmp/.X1-lock
+    xauth add :1 . $(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
+    Xwayland :1 -auth ~/.Xauthority -nolisten tcp -rootless &
+    dbus-update-activation-environment --systemd DISPLAY=:1 XAUTHORITY=~/.Xauthority
+
+    if ! pgrep -u "$USER" -x somebar >/dev/null 2>&1; then
+        start_bars
+    fi
+}
+
+exec dwl -s "DOTFILES='$DOTFILES'; $(declare -f start_bars autostart); autostart" "$@"

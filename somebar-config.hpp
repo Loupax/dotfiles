@@ -12,8 +12,9 @@ constexpr int paddingY = 3;
 // See https://docs.gtk.org/Pango/type_func.FontDescription.from_string.html
 constexpr const char* font = "0xProto Nerd Font Mono 12";
 
-constexpr ColorScheme colorInactive = {Color(0xbb, 0xbb, 0xbb), Color(0x22, 0x22, 0x22)};
-constexpr ColorScheme colorActive = {Color(0xee, 0xee, 0xee), Color(0x00, 0x55, 0x77)};
+constexpr ColorScheme colorInactive = {Color(0xB0, 0xAC, 0xBB), Color(0x1B, 0x2E, 0x4D, 0xCC)};
+constexpr ColorScheme colorActive = {Color(0xee, 0xee, 0xee), Color(0x98, 0x55, 0x6B)};
+
 constexpr const char* termcmd[] = {"foot", nullptr};
 
 
