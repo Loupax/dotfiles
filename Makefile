@@ -28,6 +28,7 @@ dwl-install: wlroots-build
 	sudo $(MAKE) -C someblocks install
 
 st-install:
+	ln -sf $(DOTFILES)/st-config.h $(DOTFILES)/st/config.h
 	$(MAKE) -C st && sudo $(MAKE) -C st install
 
 install: dwl-install st-install

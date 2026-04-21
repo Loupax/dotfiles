@@ -24,6 +24,7 @@ Personal configuration files, symlinked into place. The neovim config is a git s
 | Path | Repository | Notes |
 |---|---|---|
 | `dwl/` | [Loupax/dwl](https://github.com/Loupax/dwl) | Wayland compositor — build and install from here |
+| `st/` | [Loupax/st](https://github.com/Loupax/st) | Simple terminal (patched with alpha transparency) |
 | `somebar/` | [Loupax/somebar](https://github.com/Loupax/somebar) | Status bar for dwl |
 | `someblocks/` | [Loupax/someblocks](https://github.com/Loupax/someblocks) | Status block runner for somebar |
 | `wlroots/` | [Loupax/wlroots](https://github.com/Loupax/wlroots) | Vendored wlroots 0.19 — built locally, not installed system-wide |
@@ -89,6 +90,7 @@ Personal configs live at the repo root and must be symlinked before building:
 |---|---|
 | `dwl-config.h` | `dwl/config.h` |
 | `somebar-config.hpp` | `somebar/src/config.hpp` |
+| `st-config.h` | `st/config.h` |
 
 The `install` make target handles everything:
 
@@ -96,7 +98,7 @@ The `install` make target handles everything:
 make install
 ```
 
-This builds wlroots to a local prefix (`wlroots/install/`), symlinks both configs, then builds and installs dwl, somebar, and someblocks.
+This builds wlroots to a local prefix (`wlroots/install/`), symlinks all configs, then builds and installs dwl, somebar, someblocks, and st.
 
 ## X11 apps (Steam, etc.)
 
