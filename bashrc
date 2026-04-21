@@ -65,7 +65,7 @@ unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
-xterm*|rxvt*)
+xterm*|rxvt*|st*)
     PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
     ;;
 *)
@@ -245,6 +245,7 @@ nvim ()
 # -------------------------------------------------------
 
 export EDITOR="nvim"
+export TERM="st-256color"
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/keyring/ssh"
 
 # NOTE: Consider moving sensitive tokens to a separate file (e.g. ~/.secrets)

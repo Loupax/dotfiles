@@ -2,12 +2,14 @@ DOTFILES := $(shell pwd)
 
 update:
 	git subtree pull --prefix=dwl dwl main --squash
+	git subtree pull --prefix=st st main --squash
 	git subtree pull --prefix=somebar somebar master --squash
 	git subtree pull --prefix=someblocks someblocks master --squash
 	git subtree pull --prefix=wlroots wlroots master --squash
 
 push:
 	git subtree push --prefix=dwl dwl main
+	git subtree push --prefix=st st main
 	git subtree push --prefix=somebar somebar master
 	git subtree push --prefix=someblocks someblocks master
 	git subtree push --prefix=wlroots wlroots master
@@ -25,4 +27,7 @@ dwl-install: wlroots-build
 	ninja -C somebar/build && sudo ninja -C somebar/build install
 	sudo $(MAKE) -C someblocks install
 
-install: dwl-install
+st-install:
+	$(MAKE) -C st && sudo $(MAKE) -C st install
+
+install: dwl-install st-install
