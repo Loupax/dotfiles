@@ -1,0 +1,1 @@
+- [ ] Patch native Wayland support into st (see: https://github.com/marchaesen/st-wl)

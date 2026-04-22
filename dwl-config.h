@@ -109,7 +109,7 @@ static const enum libinput_config_tap_button_map button_map = LIBINPUT_CONFIG_TA
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *termcmd[] = { "foot", NULL };
+static const char *termcmd[] = { "st", NULL };
 static const char *menucmd[] = { "/bin/sh", "-c", "tofi-run | xargs -r sh -c", NULL };
 
 static const Key keys[] = {
@@ -122,7 +122,7 @@ static const Key keys[] = {
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_n,                 spawn,            SHCMD("swaync-client -t -sw") },
 
 	/* window management */
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_q,                killclient,       {0} },
+	{ MODKEY,                    XKB_KEY_q,                killclient,       {0} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_Return,           zoom,             {0} },  /* promote to master */
 	{ MODKEY,                    XKB_KEY_j,                 focusstack,       {.i = +1} },
 	{ MODKEY,                    XKB_KEY_k,                 focusstack,       {.i = -1} },
