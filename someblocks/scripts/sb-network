@@ -2,6 +2,11 @@
 prev=/tmp/sb-net-prev
 iface=$(ip route get 1.1.1.1 2>/dev/null | awk '{print $5; exit}')
 [ -z "$iface" ] && echo "no net" && exit
+
+case "$iface" in
+    e*) icon="󰈀 " ;;   # wired (eth*, en*)
+    *)  icon="󰤨 " ;;   # wireless / fallback
+esac
 rx=$(awk -v i="$iface:" '$1==i {print $2}' /proc/net/dev)
 if [ -f "$prev" ]; then
     read -r p_rx p_ts < "$prev"
@@ -9,11 +14,13 @@ if [ -f "$prev" ]; then
     dt=$(( now - p_ts ))
     [ "$dt" -gt 0 ] && bps=$(( (rx - p_rx) / dt )) || bps=0
     if [ "$bps" -gt 1048576 ]; then
-        printf "%dMB/s" "$(( bps/1048576 ))"
+        printf "%s%dMB/s" "$icon" "$(( bps/1048576 ))"
     elif [ "$bps" -gt 1024 ]; then
-        printf "%dKB/s" "$(( bps/1024 ))"
+        printf "%s%dKB/s" "$icon" "$(( bps/1024 ))"
     else
-        printf "%dB/s" "$bps"
+        printf "%s%dB/s" "$icon" "$bps"
     fi
+else
+    printf "%s" "$icon"
 fi
 printf "%d %d\n" "$rx" "$(date +%s)" > "$prev"
