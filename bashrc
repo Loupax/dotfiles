@@ -245,7 +245,6 @@ nvim ()
 # -------------------------------------------------------
 
 export EDITOR="nvim"
-export TERM="st-256color"
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/keyring/ssh"
 
 # NOTE: Consider moving sensitive tokens to a separate file (e.g. ~/.secrets)
