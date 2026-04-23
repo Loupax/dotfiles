@@ -249,19 +249,15 @@ export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/keyring/ssh"
 
 # NOTE: Consider moving sensitive tokens to a separate file (e.g. ~/.secrets)
 # that is not version-controlled, and source it here instead.
-source ~/.secrets
+if [ -d '~/.secrets' ]; then
+  for f in ~/.secrets/*; do source $f; done
+fi
 
 # -------------------------------------------------------
 # PATH
 # -------------------------------------------------------
 
 export PATH="$HOME/.local/bin:$HOME/bin:$HOME/.local/share/pnpm:/usr/local/go/bin:$HOME/.cargo/bin:$HOME/go/bin:$PATH"
-
-# -------------------------------------------------------
-# Homebrew (Linuxbrew)
-# -------------------------------------------------------
-
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # -------------------------------------------------------
 # NVM (Node Version Manager)
