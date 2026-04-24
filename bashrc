@@ -249,7 +249,7 @@ export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/keyring/ssh"
 
 # NOTE: Consider moving sensitive tokens to a separate file (e.g. ~/.secrets)
 # that is not version-controlled, and source it here instead.
-if [ -d '~/.secrets' ]; then
+if [ -d "$HOME/.secrets" ]; then
   for f in ~/.secrets/*; do source $f; done
 fi
 
