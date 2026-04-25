@@ -28,6 +28,7 @@ Personal configuration files, symlinked into place. The neovim config is a git s
 | `somebar/` | [Loupax/somebar](https://github.com/Loupax/somebar) | Status bar for dwl |
 | `someblocks/` | [Loupax/someblocks](https://github.com/Loupax/someblocks) | Status block runner for somebar |
 | `wlroots/` | [Loupax/wlroots](https://github.com/Loupax/wlroots) | Vendored wlroots 0.19 — built locally, not installed system-wide |
+| `dmenu/` | [suckless/dmenu](https://tools.suckless.org/dmenu/) | Dynamic menu — patched for centered floating mode, runs via Xwayland |
 
 Subtrees are regular directories — no special clone steps needed. To sync upstream changes:
 
@@ -61,7 +62,7 @@ Before building, install the required packages.
 **Arch Linux:**
 
 ```bash
-sudo pacman -S xorg-xwayland xcb-util-icccm swaync meson ninja
+sudo pacman -S xorg-xwayland xcb-util-icccm swaync meson ninja libxinerama libxft
 ```
 
 **Ubuntu 24.04:**
@@ -91,6 +92,7 @@ Personal configs live at the repo root and must be symlinked before building:
 | `dwl-config.h` | `dwl/config.h` |
 | `somebar-config.hpp` | `somebar/src/config.hpp` |
 | `st-config.h` | `st/config.h` |
+| `dmenu-config.h` | `dmenu/config.h` |
 
 The `install` make target handles everything:
 

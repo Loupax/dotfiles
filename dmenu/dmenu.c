@@ -188,6 +188,9 @@ drawmenu(void)
 			drw_text(drw, mw - w, 0, w, bh, lrpad / 2, ">", 0);
 		}
 	}
+	drw_setscheme(drw, scheme[SchemeSel]);
+	for (int b = 0; b < border_width; b++)
+		drw_rect(drw, b, b, mw - 2*b, mh - 2*b, 0, 1);
 	drw_map(drw, win, 0, 0, mw, mh);
 }
 
@@ -614,6 +617,7 @@ static void
 setup(void)
 {
 	int x, y, i, j;
+	int sh = 0, sy = 0;
 	unsigned int du;
 	XSetWindowAttributes swa;
 	XIM xim;
@@ -665,6 +669,8 @@ setup(void)
 		x = info[i].x_org;
 		y = info[i].y_org + (topbar ? 0 : info[i].height - mh);
 		mw = info[i].width;
+		sh = info[i].height;
+		sy = info[i].y_org;
 		XFree(info);
 	} else
 #endif
@@ -675,6 +681,14 @@ setup(void)
 		x = 0;
 		y = topbar ? 0 : wa.height - mh;
 		mw = wa.width;
+		sh = wa.height;
+		sy = 0;
+	}
+	if (centered) {
+		int sw = mw;
+		mw = MAX(min_width, sw / 3);
+		x += (sw - mw) / 2;
+		y = sy + (sh - mh) / 2;
 	}
 	promptw = (prompt && *prompt) ? TEXTW(prompt) - lrpad / 4 : 0;
 	inputw = mw / 3; /* input width: ~33% of monitor width */
