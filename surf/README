@@ -35,6 +35,18 @@ which is run like this:
 Further invocations of the script will run surf with the specified URI in this
 instance of tabbed.
 
+The script stores the tabbed window XID in $XDG_RUNTIME_DIR/tabbed-surf.xid
+(falls back to /tmp if XDG_RUNTIME_DIR is unset).
+
+To make `surf` always open with tabbed support, symlink the script into a
+directory on $PATH and add an alias in your shell config:
+
+	sudo ln -s /path/to/dotfiles/surf/surf-open.sh /usr/local/bin/surf-open
+
+Then in ~/.bashrc (or equivalent):
+
+	alias surf='/usr/local/bin/surf-open'
+
 [0] http://tools.suckless.org/dmenu
 [1] http://tools.suckless.org/tabbed
 
