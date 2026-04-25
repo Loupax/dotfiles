@@ -41,4 +41,10 @@ dmenu-install:
 	ln -sf $(DOTFILES)/dmenu-config.h $(DOTFILES)/dmenu/config.h
 	$(MAKE) -C dmenu && sudo $(MAKE) -C dmenu install
 
-install: dwl-install st-install dmenu-install
+tabbed-install:
+	$(MAKE) -C tabbed && sudo $(MAKE) -C tabbed install
+
+surf-install:
+	$(MAKE) -C surf && sudo $(MAKE) -C surf install
+
+install: dwl-install st-install dmenu-install tabbed-install surf-install

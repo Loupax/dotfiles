@@ -83,7 +83,7 @@ sudo apt-get install -y libinput-dev libxcb-icccm4-dev libpixman-1-dev libdrm-de
 
 wlroots is vendored as a subtree and built from source, so it does not need to be installed as a system package. On Ubuntu, meson will automatically download and build any dependencies (like wayland and pixman) that are too old in the system packages.
 
-## Building dwl, somebar, someblocks
+## Building dwl, somebar, someblocks, st, dmenu, tabbed, surf
 
 Personal configs live at the repo root and must be symlinked before building:
 
@@ -100,17 +100,20 @@ The `install` make target handles everything:
 make install
 ```
 
-This builds wlroots to a local prefix (`wlroots/install/`), symlinks all configs, then builds and installs dwl, somebar, someblocks, and st.
+This builds wlroots to a local prefix (`wlroots/install/`), symlinks all configs, then builds and installs dwl, somebar, someblocks, st, dmenu, tabbed, and surf.
 
-## X11 apps (Steam, etc.)
+## X11 apps (Steam, surf, etc.)
 
-Xwayland is started automatically on `:1` when dwl launches. `DISPLAY` and `XAUTHORITY` are propagated to all new terminals via `dbus-update-activation-environment`, so X11 apps work without any manual setup:
+Xwayland is started automatically on `:1` when dwl launches. `DISPLAY` and `XAUTHORITY` are propagated to D-Bus-activated services via `dbus-update-activation-environment`, so X11 apps work without any manual setup:
 
 ```bash
 steam
+surf
 ```
 
-No additional configuration needed after `make dwl-install` and a session restart.
+surf is patched to force the GTK X11 backend internally (`gdk_set_allowed_backends("x11")`), so it does not require `GDK_BACKEND=x11` to be set in the environment.
+
+No additional configuration needed after `make install` and a session restart.
 
 ## Creating symlinks
 

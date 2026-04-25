@@ -345,6 +345,8 @@ setup(void)
 	atoms[AtomUri] = XInternAtom(dpy, "_SURF_URI", False);
 	atoms[AtomUTF8] = XInternAtom(dpy, "UTF8_STRING", False);
 
+	/* force X11 backend — surf runs via XWayland, Wayland backend breaks window embedding */
+	gdk_set_allowed_backends("x11");
 	gtk_init(NULL, NULL);
 
 	gdpy = gdk_display_get_default();
