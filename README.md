@@ -113,7 +113,10 @@ steam
 surf
 ```
 
-surf is patched to force the GTK X11 backend internally (`gdk_set_allowed_backends("x11")`), so it does not require `GDK_BACKEND=x11` to be set in the environment.
+surf is patched with the following:
+
+- Force GTK X11 backend via `gdk_set_allowed_backends("x11")` — no `GDK_BACKEND` env var needed
+- History patch — visited URLs are appended to `~/.surf/history.txt` with ISO 8601 timestamps; use dmenu to search with `Ctrl+h` (or pipe the file manually)
 
 No additional configuration needed after `make install` and a session restart.
 
