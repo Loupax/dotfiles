@@ -1,6 +1,9 @@
 DOTFILES := $(shell pwd)
 
 update:
+	git subtree pull --prefix=dmenu dmenu master --squash
+	git subtree pull --prefix=surf surf surf-webkit2 --squash
+	git subtree pull --prefix=tabbed tabbed master --squash
 	git subtree pull --prefix=dwl dwl main --squash
 	git subtree pull --prefix=st st main --squash
 	git subtree pull --prefix=somebar somebar master --squash
@@ -8,6 +11,9 @@ update:
 	git subtree pull --prefix=wlroots wlroots master --squash
 
 push:
+	git subtree push --prefix=dmenu dmenu master
+	git subtree push --prefix=surf surf surf-webkit2
+	git subtree push --prefix=tabbed tabbed master
 	git subtree push --prefix=dwl dwl main
 	git subtree push --prefix=st st main
 	git subtree push --prefix=somebar somebar master
@@ -15,7 +21,7 @@ push:
 	git subtree push --prefix=wlroots wlroots master
 
 wlroots-build:
-	meson setup --wrap-mode=default --prefix=$(DOTFILES)/wlroots/install --libdir=lib wlroots/build wlroots
+	meson setup --reconfigure --wrap-mode=default --prefix=$(DOTFILES)/wlroots/install --libdir=lib wlroots/build wlroots
 	ninja -C wlroots/build
 	ninja -C wlroots/build install
 
@@ -31,4 +37,16 @@ st-install:
 	ln -sf $(DOTFILES)/st-config.h $(DOTFILES)/st/config.h
 	$(MAKE) -C st && sudo $(MAKE) -C st install
 
-install: dwl-install st-install
+dmenu-install:
+	ln -sf $(DOTFILES)/dmenu-config.h $(DOTFILES)/dmenu/config.h
+	$(MAKE) -C dmenu && sudo $(MAKE) -C dmenu install
+
+tabbed-install:
+	ln -sf $(DOTFILES)/tabbed-config.h $(DOTFILES)/tabbed/config.h
+	$(MAKE) -C tabbed && sudo $(MAKE) -C tabbed install
+
+surf-install:
+	ln -sf $(DOTFILES)/surf-config.h $(DOTFILES)/surf/config.h
+	$(MAKE) -C surf && sudo $(MAKE) -C surf install
+
+install: dwl-install st-install dmenu-install tabbed-install surf-install

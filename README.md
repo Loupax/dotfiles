@@ -28,6 +28,7 @@ Personal configuration files, symlinked into place. The neovim config is a git s
 | `somebar/` | [Loupax/somebar](https://github.com/Loupax/somebar) | Status bar for dwl |
 | `someblocks/` | [Loupax/someblocks](https://github.com/Loupax/someblocks) | Status block runner for somebar |
 | `wlroots/` | [Loupax/wlroots](https://github.com/Loupax/wlroots) | Vendored wlroots 0.19 — built locally, not installed system-wide |
+| `dmenu/` | [suckless/dmenu](https://tools.suckless.org/dmenu/) | Dynamic menu — patched for centered floating mode, runs via Xwayland |
 
 Subtrees are regular directories — no special clone steps needed. To sync upstream changes:
 
@@ -61,7 +62,7 @@ Before building, install the required packages.
 **Arch Linux:**
 
 ```bash
-sudo pacman -S xorg-xwayland xcb-util-icccm swaync meson ninja
+sudo pacman -S xorg-xwayland xcb-util-icccm swaync meson ninja libxinerama libxft
 ```
 
 **Ubuntu 24.04:**
@@ -82,7 +83,7 @@ sudo apt-get install -y libinput-dev libxcb-icccm4-dev libpixman-1-dev libdrm-de
 
 wlroots is vendored as a subtree and built from source, so it does not need to be installed as a system package. On Ubuntu, meson will automatically download and build any dependencies (like wayland and pixman) that are too old in the system packages.
 
-## Building dwl, somebar, someblocks
+## Building dwl, somebar, someblocks, st, dmenu, tabbed, surf
 
 Personal configs live at the repo root and must be symlinked before building:
 
@@ -91,6 +92,9 @@ Personal configs live at the repo root and must be symlinked before building:
 | `dwl-config.h` | `dwl/config.h` |
 | `somebar-config.hpp` | `somebar/src/config.hpp` |
 | `st-config.h` | `st/config.h` |
+| `dmenu-config.h` | `dmenu/config.h` |
+| `tabbed-config.h` | `tabbed/config.h` |
+| `surf-config.h` | `surf/config.h` |
 
 The `install` make target handles everything:
 
@@ -98,17 +102,23 @@ The `install` make target handles everything:
 make install
 ```
 
-This builds wlroots to a local prefix (`wlroots/install/`), symlinks all configs, then builds and installs dwl, somebar, someblocks, and st.
+This builds wlroots to a local prefix (`wlroots/install/`), symlinks all configs, then builds and installs dwl, somebar, someblocks, st, dmenu, tabbed, and surf.
 
-## X11 apps (Steam, etc.)
+## X11 apps (Steam, surf, etc.)
 
-Xwayland is started automatically on `:1` when dwl launches. `DISPLAY` and `XAUTHORITY` are propagated to all new terminals via `dbus-update-activation-environment`, so X11 apps work without any manual setup:
+Xwayland is started automatically on `:1` when dwl launches. `DISPLAY` and `XAUTHORITY` are propagated to D-Bus-activated services via `dbus-update-activation-environment`, so X11 apps work without any manual setup:
 
 ```bash
 steam
+surf
 ```
 
-No additional configuration needed after `make dwl-install` and a session restart.
+surf is patched with the following:
+
+- Force GTK X11 backend via `gdk_set_allowed_backends("x11")` — no `GDK_BACKEND` env var needed
+- History patch — visited URLs are appended to `~/.surf/history.txt` with ISO 8601 timestamps; use dmenu to search with `Ctrl+h` (or pipe the file manually)
+
+No additional configuration needed after `make install` and a session restart.
 
 ## Creating symlinks
 
