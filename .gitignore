@@ -1,2 +1,19 @@
 wlroots/build/
 wlroots/install/
+
+# suckless build artifacts and generated configs
+dmenu/config.h
+dmenu/dmenu
+dmenu/stest
+dmenu/*.o
+
+surf/config.h
+surf/surf
+surf/webext-surf.o
+surf/webext-surf.so
+surf/*.o
+
+tabbed/config.h
+tabbed/tabbed
+tabbed/xembed
+tabbed/*.o
