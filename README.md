@@ -93,6 +93,8 @@ Personal configs live at the repo root and must be symlinked before building:
 | `somebar-config.hpp` | `somebar/src/config.hpp` |
 | `st-config.h` | `st/config.h` |
 | `dmenu-config.h` | `dmenu/config.h` |
+| `tabbed-config.h` | `tabbed/config.h` |
+| `surf-config.h` | `surf/config.h` |
 
 The `install` make target handles everything:
 

@@ -42,9 +42,11 @@ dmenu-install:
 	$(MAKE) -C dmenu && sudo $(MAKE) -C dmenu install
 
 tabbed-install:
+	ln -sf $(DOTFILES)/tabbed-config.h $(DOTFILES)/tabbed/config.h
 	$(MAKE) -C tabbed && sudo $(MAKE) -C tabbed install
 
 surf-install:
+	ln -sf $(DOTFILES)/surf-config.h $(DOTFILES)/surf/config.h
 	$(MAKE) -C surf && sudo $(MAKE) -C surf install
 
 install: dwl-install st-install dmenu-install tabbed-install surf-install
