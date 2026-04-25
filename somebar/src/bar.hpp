@@ -38,7 +38,7 @@ class Bar {
 	wl_unique_ptr<PangoContext> _pangoContext;
 	std::optional<ShmBuffer> _bufs;
 	std::vector<Tag> _tags;
-	BarComponent _layoutCmp, _titleCmp, _statusCmp, _statusCenterCmp;
+	BarComponent _layoutCmp, _titleCmp, _statusCmp;
 	bool _selected;
 	bool _invalid {false};
 

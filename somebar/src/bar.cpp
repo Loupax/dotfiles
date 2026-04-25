@@ -97,7 +97,6 @@ Bar::Bar()
 	_layoutCmp = createComponent();
 	_titleCmp = createComponent();
 	_statusCmp = createComponent();
-	_statusCenterCmp = createComponent();
 }
 
 const wl_surface* Bar::surface() const
@@ -161,20 +160,7 @@ void Bar::setTitle(const std::string& title)
 }
 void Bar::setStatus(const std::string& status)
 {
-	auto split = status.find('\x01');
-	if (split != std::string::npos) {
-		auto center = status.substr(0, split);
-		auto right = status.substr(split + 1);
-		// trim leading inter-block delimiter left by someblocks
-		static const std::string delim = "  |  ";
-		if (right.size() >= delim.size() && right.compare(0, delim.size(), delim) == 0)
-			right = right.substr(delim.size());
-		_statusCenterCmp.setText(center);
-		_statusCmp.setText(right);
-	} else {
-		_statusCenterCmp.setText({});
-		_statusCmp.setText(status);
-	}
+	_statusCmp.setText(status);
 }
 
 void Bar::invalidate()
@@ -252,10 +238,6 @@ void Bar::render()
 
 	// cap title width so it doesn't overlap the status area
 	auto rightBoundary = _bufs->width - _statusCmp.width() - paddingX*2;
-	if (_statusCenterCmp.width() > 0) {
-		auto centerStart = (_bufs->width - _statusCenterCmp.width() - paddingX*2) / 2;
-		rightBoundary = std::min(rightBoundary, centerStart);
-	}
 	auto titleAvail = rightBoundary - _x - paddingX;
 	pango_layout_set_width(_titleCmp.pangoLayout.get(), std::max<int>(0, titleAvail) * PANGO_SCALE);
 	pango_layout_set_ellipsize(_titleCmp.pangoLayout.get(), PANGO_ELLIPSIZE_END);
@@ -298,22 +280,13 @@ void Bar::renderTags()
 void Bar::renderStatus()
 {
 	pango_cairo_update_layout(_painter, _statusCmp.pangoLayout.get());
-	pango_cairo_update_layout(_painter, _statusCenterCmp.pangoLayout.get());
 	beginBg();
-	auto rightStart = _bufs->width - _statusCmp.width() - paddingX*2;
-	cairo_rectangle(_painter, _x, 0, _bufs->width - _x, _bufs->height);
+	auto start = _bufs->width - _statusCmp.width() - paddingX*2;
+	cairo_rectangle(_painter, _x, 0, _bufs->width-_x+start, _bufs->height);
 	cairo_fill(_painter);
 
+	_x = start;
 	setColorScheme(colorInactive, false);
-	if (_statusCenterCmp.width() > 0) {
-		auto centerStart = (_bufs->width - _statusCenterCmp.width() - paddingX*2) / 2;
-		auto savedX = _x;
-		_x = centerStart;
-		renderComponent(_statusCenterCmp);
-		_x = savedX;
-	}
-
-	_x = rightStart;
 	if (_statusCmp.width() > 0) {
 		renderComponent(_statusCmp);
 	}
