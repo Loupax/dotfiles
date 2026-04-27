@@ -1,4 +1,15 @@
 DOTFILES := $(shell pwd)
+GITHUB := git@github.com:Loupax
+
+remotes:
+	git remote set-url dmenu $(GITHUB)/dmenu.git 2>/dev/null || git remote add dmenu $(GITHUB)/dmenu.git
+	git remote set-url surf $(GITHUB)/surf.git 2>/dev/null || git remote add surf $(GITHUB)/surf.git
+	git remote set-url tabbed $(GITHUB)/tabbed.git 2>/dev/null || git remote add tabbed $(GITHUB)/tabbed.git
+	git remote set-url dwl $(GITHUB)/dwl.git 2>/dev/null || git remote add dwl $(GITHUB)/dwl.git
+	git remote set-url st $(GITHUB)/st.git 2>/dev/null || git remote add st $(GITHUB)/st.git
+	git remote set-url somebar $(GITHUB)/somebar.git 2>/dev/null || git remote add somebar $(GITHUB)/somebar.git
+	git remote set-url someblocks $(GITHUB)/someblocks.git 2>/dev/null || git remote add someblocks $(GITHUB)/someblocks.git
+	git remote set-url wlroots $(GITHUB)/wlroots.git 2>/dev/null || git remote add wlroots $(GITHUB)/wlroots.git
 
 update:
 	git subtree pull --prefix=dmenu dmenu master --squash

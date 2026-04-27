@@ -30,7 +30,13 @@ Personal configuration files, symlinked into place. The neovim config is a git s
 | `wlroots/` | [Loupax/wlroots](https://github.com/Loupax/wlroots) | Vendored wlroots 0.19 — built locally, not installed system-wide |
 | `dmenu/` | [suckless/dmenu](https://tools.suckless.org/dmenu/) | Dynamic menu — patched for centered floating mode, runs via Xwayland |
 
-Subtrees are regular directories — no special clone steps needed. To sync upstream changes:
+Subtrees are regular directories — no special clone steps needed. Set up the required git remotes first:
+
+```bash
+make remotes
+```
+
+Then sync upstream changes:
 
 ```bash
 make update
@@ -153,6 +159,7 @@ rm ~/.config/waybar  # only removes the symlink, not the directory
 ```bash
 git pull
 git submodule update --init --recursive
+make remotes
 ```
 
 ## Updating the nvim submodule
