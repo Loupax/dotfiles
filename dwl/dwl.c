@@ -290,9 +290,9 @@ static void destroynotify(struct wl_listener *listener, void *data);
 static void destroypointerconstraint(struct wl_listener *listener, void *data);
 static void destroysessionlock(struct wl_listener *listener, void *data);
 static void destroykeyboardgroup(struct wl_listener *listener, void *data);
-static Monitor *dirtomon(enum wlr_direction dir);
+static Monitor *cyclemon(int dir);
 static void focusclient(Client *c, int lift);
-static void focusmon(const Arg *arg);
+static void focuscyclemon(const Arg *arg);
 static void focusstack(const Arg *arg);
 static Client *focustop(Monitor *m);
 static void fullscreennotify(struct wl_listener *listener, void *data);
@@ -341,7 +341,7 @@ static void setup(void);
 static void spawn(const Arg *arg);
 static void startdrag(struct wl_listener *listener, void *data);
 static void tag(const Arg *arg);
-static void tagmon(const Arg *arg);
+static void tagcyclemon(const Arg *arg);
 static void tile(Monitor *m);
 static void togglefloating(const Arg *arg);
 static void togglefullscreen(const Arg *arg);
@@ -1403,19 +1403,17 @@ destroykeyboardgroup(struct wl_listener *listener, void *data)
 }
 
 Monitor *
-dirtomon(enum wlr_direction dir)
+cyclemon(int dir)
 {
-	struct wlr_output *next;
-	if (!wlr_output_layout_get(output_layout, selmon->wlr_output))
-		return selmon;
-	if ((next = wlr_output_layout_adjacent_output(output_layout,
-			dir, selmon->wlr_output, selmon->m.x, selmon->m.y)))
-		return next->data;
-	if ((next = wlr_output_layout_farthest_output(output_layout,
-			dir ^ (WLR_DIRECTION_LEFT|WLR_DIRECTION_RIGHT),
-			selmon->wlr_output, selmon->m.x, selmon->m.y)))
-		return next->data;
-	return selmon;
+	Monitor *m;
+	struct wl_list *next;
+
+	next = dir > 0 ? selmon->link.next : selmon->link.prev;
+	/* Wrap around if we hit the list head (sentinel) */
+	if (next == &mons)
+		next = dir > 0 ? mons.next : mons.prev;
+	m = wl_container_of(next, m, link);
+	return m;
 }
 
 void
@@ -1493,12 +1491,12 @@ focusclient(Client *c, int lift)
 }
 
 void
-focusmon(const Arg *arg)
+focuscyclemon(const Arg *arg)
 {
 	int i = 0, nmons = wl_list_length(&mons);
 	if (nmons) {
 		do /* don't switch to disabled mons */
-			selmon = dirtomon(arg->i);
+			selmon = cyclemon(arg->i);
 		while (!selmon->wlr_output->enabled && i++ < nmons);
 	}
 	focusclient(focustop(selmon), 1);
@@ -2755,11 +2753,11 @@ tag(const Arg *arg)
 }
 
 void
-tagmon(const Arg *arg)
+tagcyclemon(const Arg *arg)
 {
 	Client *sel = focustop(selmon);
 	if (sel)
-		setmon(sel, dirtomon(arg->i), 0);
+		setmon(sel, cyclemon(arg->i), 0);
 }
 
 void
