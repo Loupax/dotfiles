@@ -124,12 +124,8 @@ static const Key keys[] = {
 	/* window management */
 	{ MODKEY,                    XKB_KEY_q,                killclient,       {0} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_Return,           zoom,             {0} },  /* promote to master */
-	{ MODKEY,                    XKB_KEY_j,                 focusstack,       {.i = +1} },
-	{ MODKEY,                    XKB_KEY_k,                 focusstack,       {.i = -1} },
 	{ MODKEY,                    XKB_KEY_Down,              focusstack,       {.i = +1} },
 	{ MODKEY,                    XKB_KEY_Up,                focusstack,       {.i = -1} },
-	{ MODKEY,                    XKB_KEY_h,                 setmfact,         {.f = -0.05f} },
-	{ MODKEY,                    XKB_KEY_l,                 setmfact,         {.f = +0.05f} },
 	{ MODKEY,                    XKB_KEY_Left,              setmfact,         {.f = -0.05f} },
 	{ MODKEY,                    XKB_KEY_Right,             setmfact,         {.f = +0.05f} },
 	{ MODKEY,                    XKB_KEY_i,                 incnmaster,       {.i = +1} },
@@ -157,10 +153,14 @@ static const Key keys[] = {
 	TAGKEYS(          XKB_KEY_9, XKB_KEY_parenleft,                           8),
 
 	/* monitors */
-	{ MODKEY,                    XKB_KEY_comma,             focusmon,         {.i = WLR_DIRECTION_LEFT} },
-	{ MODKEY,                    XKB_KEY_period,            focusmon,         {.i = WLR_DIRECTION_RIGHT} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_less,              tagmon,           {.i = WLR_DIRECTION_LEFT} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_greater,           tagmon,           {.i = WLR_DIRECTION_RIGHT} },
+	{ MODKEY,                    XKB_KEY_h,                 focusmon,         {.i = WLR_DIRECTION_LEFT} },
+	{ MODKEY,                    XKB_KEY_l,                 focusmon,         {.i = WLR_DIRECTION_RIGHT} },
+	{ MODKEY,                    XKB_KEY_j,                 focusmon,         {.i = WLR_DIRECTION_DOWN} },
+	{ MODKEY,                    XKB_KEY_k,                 focusmon,         {.i = WLR_DIRECTION_UP} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_H,                tagmon,           {.i = WLR_DIRECTION_LEFT} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_L,                tagmon,           {.i = WLR_DIRECTION_RIGHT} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_J,                tagmon,           {.i = WLR_DIRECTION_DOWN} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_K,                tagmon,           {.i = WLR_DIRECTION_UP} },
 
 	/* media keys */
 	{ 0, XKB_KEY_XF86AudioRaiseVolume,  spawn, SHCMD("wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+") },
