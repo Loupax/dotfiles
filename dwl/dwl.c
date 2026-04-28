@@ -1499,6 +1499,9 @@ focuscyclemon(const Arg *arg)
 			selmon = cyclemon(arg->i);
 		while (!selmon->wlr_output->enabled && i++ < nmons);
 	}
+	wlr_cursor_warp_closest(cursor, NULL,
+			selmon->m.x + selmon->m.width / 2.0,
+			selmon->m.y + selmon->m.height / 2.0);
 	focusclient(focustop(selmon), 1);
 }
 
