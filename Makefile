@@ -65,7 +65,7 @@ surf-install:
 
 waylock-install:
 	$(eval WAYLOCK_DEST := $(shell mktemp -d))
-	cd waylock && DESTDIR=$(WAYLOCK_DEST) zig build --prefix /usr -Doptimize=ReleaseSafe install
+	cd waylock && DESTDIR=$(WAYLOCK_DEST) zig build --prefix /usr -Doptimize=ReleaseSafe -Dllvm=true install
 	sudo cp -a $(WAYLOCK_DEST)/. /
 	rm -rf $(WAYLOCK_DEST)
 	sudo chown root:root /usr/bin/waylock
