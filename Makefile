@@ -10,6 +10,7 @@ remotes:
 	git remote set-url somebar $(GITHUB)/somebar.git 2>/dev/null || git remote add somebar $(GITHUB)/somebar.git
 	git remote set-url someblocks $(GITHUB)/someblocks.git 2>/dev/null || git remote add someblocks $(GITHUB)/someblocks.git
 	git remote set-url wlroots $(GITHUB)/wlroots.git 2>/dev/null || git remote add wlroots $(GITHUB)/wlroots.git
+	git remote set-url waylock $(GITHUB)/waylock.git 2>/dev/null || git remote add waylock $(GITHUB)/waylock.git
 
 update:
 	git subtree pull --prefix=dmenu dmenu master --squash
@@ -20,6 +21,7 @@ update:
 	git subtree pull --prefix=somebar somebar master --squash
 	git subtree pull --prefix=someblocks someblocks master --squash
 	git subtree pull --prefix=wlroots wlroots master --squash
+	git subtree pull --prefix=waylock waylock master --squash
 
 push:
 	git subtree push --prefix=dmenu dmenu master
@@ -30,6 +32,7 @@ push:
 	git subtree push --prefix=somebar somebar master
 	git subtree push --prefix=someblocks someblocks master
 	git subtree push --prefix=wlroots wlroots master
+	git subtree push --prefix=waylock waylock master
 
 wlroots-build:
 	meson setup --reconfigure --wrap-mode=default --prefix=$(DOTFILES)/wlroots/install --libdir=lib wlroots/build wlroots
@@ -60,4 +63,9 @@ surf-install:
 	ln -sf $(DOTFILES)/surf-config.h $(DOTFILES)/surf/config.h
 	$(MAKE) -C surf && sudo $(MAKE) -C surf install
 
-install: dwl-install st-install dmenu-install tabbed-install surf-install
+waylock-install:
+	cd waylock && DESTDIR=/tmp/waylock-dest zig build --prefix /usr -Doptimize=ReleaseSafe install
+	sudo cp -a /tmp/waylock-dest/. /
+	rm -rf /tmp/waylock-dest
+
+install: dwl-install st-install dmenu-install tabbed-install surf-install waylock-install
