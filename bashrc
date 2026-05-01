@@ -122,9 +122,9 @@ fi
 # -------------------------------------------------------
 
 # Prompt color variables
-C_RED='\[\e[0;31m\]'
+C_RED='\[\e[1;91m\]'
 C_GREEN='\[\e[0;32m\]'
-C_BLUE='\[\e[0;34m\]'
+C_BLUE='\[\e[1;94m\]'
 C_RESET='\[\e[0m\]'
 
 __prompt_git_info ()
