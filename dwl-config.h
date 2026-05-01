@@ -157,10 +157,10 @@ static const Key keys[] = {
 	{ MODKEY,                    XKB_KEY_l,                 focusmon,         {.i = WLR_DIRECTION_RIGHT} },
 	{ MODKEY,                    XKB_KEY_j,                 focusmon,         {.i = WLR_DIRECTION_DOWN} },
 	{ MODKEY,                    XKB_KEY_k,                 focusmon,         {.i = WLR_DIRECTION_UP} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_H,                tagmon,           {.i = WLR_DIRECTION_LEFT} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_L,                tagmon,           {.i = WLR_DIRECTION_RIGHT} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_J,                tagmon,           {.i = WLR_DIRECTION_DOWN} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_K,                tagmon,           {.i = WLR_DIRECTION_UP} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_h,                 tagmon,           {.i = WLR_DIRECTION_LEFT} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_l,                 tagmon,           {.i = WLR_DIRECTION_RIGHT} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_j,                 tagmon,           {.i = WLR_DIRECTION_DOWN} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_k,                 tagmon,           {.i = WLR_DIRECTION_UP} },
 
 	/* media keys */
 	{ 0, XKB_KEY_XF86AudioRaiseVolume,  spawn, SHCMD("wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+") },
