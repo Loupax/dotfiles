@@ -67,5 +67,7 @@ waylock-install:
 	cd waylock && DESTDIR=/tmp/waylock-dest zig build --prefix /usr -Doptimize=ReleaseSafe install
 	sudo cp -a /tmp/waylock-dest/. /
 	rm -rf /tmp/waylock-dest
+	sudo chown root:root /usr/bin/waylock
+	sudo chmod u+s /usr/bin/waylock
 
 install: dwl-install st-install dmenu-install tabbed-install surf-install waylock-install

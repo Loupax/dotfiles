@@ -29,6 +29,7 @@ Personal configuration files, symlinked into place. The neovim config is a git s
 | `someblocks/` | [Loupax/someblocks](https://github.com/Loupax/someblocks) | Status block runner for somebar |
 | `wlroots/` | [Loupax/wlroots](https://github.com/Loupax/wlroots) | Vendored wlroots 0.19 — built locally, not installed system-wide |
 | `dmenu/` | [suckless/dmenu](https://tools.suckless.org/dmenu/) | Dynamic menu — patched for centered floating mode, runs via Xwayland |
+| `waylock/` | [Loupax/waylock](https://github.com/Loupax/waylock) | Wayland screen locker (v1.5.0, Zig 0.15 compatible) |
 
 Subtrees are regular directories — no special clone steps needed. Set up the required git remotes first:
 
@@ -88,6 +89,26 @@ sudo apt-get install -y libinput-dev libxcb-icccm4-dev libpixman-1-dev libdrm-de
 | `meson`, `ninja` | Build system for wlroots and somebar |
 
 wlroots is vendored as a subtree and built from source, so it does not need to be installed as a system package. On Ubuntu, meson will automatically download and build any dependencies (like wayland and pixman) that are too old in the system packages.
+
+## Building waylock
+
+waylock requires Zig to build. Pin to Zig **0.15.x** — the upstream master targets Zig 0.16 which is not yet packaged on Arch.
+
+```bash
+make waylock-install
+```
+
+This builds waylock, installs the binary to `/usr/bin/waylock`, sets the **setuid root** bit (required for PAM to read `/etc/shadow`), and installs `/etc/pam.d/waylock`.
+
+The PAM config intentionally bypasses `pam_faillock` — using `system-auth` would lock your account after 3 wrong attempts, leaving you unable to unlock until the timeout expires.
+
+Lock the screen with **Alt+Ctrl+L** or run directly:
+
+```bash
+waylock --ignore-empty-password
+```
+
+> **Note:** Killing waylock forcefully (e.g. `pkill waylock`) will crash dwl. This is by design in the `ext-session-lock-v1` protocol — the compositor terminates the session to prevent the locker being bypassed. If locked out, switch to a TTY with **Ctrl+Alt+F2**, log in, then run `loginctl unlock-session <id>` or reboot cleanly.
 
 ## Building dwl, somebar, someblocks, st, dmenu, tabbed, surf
 
