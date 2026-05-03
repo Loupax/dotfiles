@@ -70,7 +70,7 @@ Before building, install the required packages.
 
 ```bash
 sudo pacman -S xorg-xwayland xcb-util-icccm swaync meson ninja libxinerama libxft \
-  pipewire-pulse noto-fonts-emoji nodejs
+  pipewire-pulse wireplumber noto-fonts-emoji nodejs
 ```
 
 **Ubuntu 24.04:**
