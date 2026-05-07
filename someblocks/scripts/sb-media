@@ -11,7 +11,8 @@ text="$artist - $title"
 max=30
 
 # Start a background ticker to re-signal this block while media is playing
-pidfile="/tmp/sb-media-ticker.pid"
+tmpdir="${XDG_RUNTIME_DIR:-/tmp}"
+pidfile="$tmpdir/sb-media-ticker.pid"
 if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
     : # ticker already running
 else
@@ -30,7 +31,7 @@ if [ ${#text} -le $max ]; then
     exit
 fi
 
-state="/tmp/sb-media-marquee"
+state="$tmpdir/sb-media-marquee"
 sep="  ·  "
 # Double the text so we can always cut a window without wrapping
 loop="$text$sep$text$sep"
