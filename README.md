@@ -69,7 +69,8 @@ Before building, install the required packages.
 **Arch Linux:**
 
 ```bash
-sudo pacman -S xorg-xwayland xcb-util-icccm swaync meson ninja libxinerama libxft
+sudo pacman -S xorg-xwayland xcb-util-icccm swaync meson ninja libxinerama libxft \
+  pipewire-pulse wireplumber noto-fonts-emoji nodejs
 ```
 
 **Ubuntu 24.04:**
@@ -87,6 +88,15 @@ sudo apt-get install -y libinput-dev libxcb-icccm4-dev libpixman-1-dev libdrm-de
 | `xcb-util-icccm` / `libxcb-icccm4-dev` | Required to build dwl with Xwayland support |
 | `swaync` | Notification daemon |
 | `meson`, `ninja` | Build system for wlroots and somebar |
+| `pipewire-pulse` | PulseAudio compatibility layer — required for `pactl subscribe` in `startdwl`, which signals someblocks to update the volume block on keypress |
+| `noto-fonts-emoji` | Emoji fallback font — required to render flag emojis in the language block |
+| `nodejs` | Required for the caveman Claude Code plugin's session hooks |
+
+After installing, enable the audio session services:
+
+```bash
+systemctl --user enable --now wireplumber pipewire-pulse
+```
 
 wlroots is vendored as a subtree and built from source, so it does not need to be installed as a system package. On Ubuntu, meson will automatically download and build any dependencies (like wayland and pixman) that are too old in the system packages.
 
@@ -130,6 +140,8 @@ make install
 ```
 
 This builds wlroots to a local prefix (`wlroots/install/`), symlinks all configs, then builds and installs dwl, somebar, someblocks, st, dmenu, tabbed, and surf.
+
+> **Note:** `blocks.h` is compiled into the someblocks binary — it is not read at runtime. After editing `blocks.h` or the block scripts' hide/show logic, re-run `make dwl-install` to rebuild. Also avoid having a stale `~/.local/bin/someblocks`; it will shadow the system-wide binary installed by `sudo make install` and changes won't take effect.
 
 ## X11 apps (Steam, surf, etc.)
 
