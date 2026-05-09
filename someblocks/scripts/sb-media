@@ -12,7 +12,7 @@ max=30
 
 # Start a background ticker to re-signal this block while media is playing
 tmpdir="${XDG_RUNTIME_DIR:-/tmp}"
-pidfile="$tmpdir/sb-media-ticker.pid"
+pidfile="$tmpdir/sb-media-ticker-$USER.pid"
 if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
     : # ticker already running
 else
@@ -31,7 +31,7 @@ if [ ${#text} -le $max ]; then
     exit
 fi
 
-state="$tmpdir/sb-media-marquee"
+state="$tmpdir/sb-media-marquee-$USER"
 sep="  ·  "
 # Double the text so we can always cut a window without wrapping
 loop="$text$sep$text$sep"
@@ -40,8 +40,7 @@ cycle=$(( ${#text} + ${#sep} ))
 # Read saved position; reset when track changes
 pos=0
 if [ -f "$state" ]; then
-    saved_pos=$(sed -n '1p' "$state")
-    saved_text=$(sed -n '2p' "$state")
+    { read -r saved_pos; read -r saved_text; } < "$state"
     [ "$saved_text" = "$text" ] && pos=$saved_pos
 fi
 
