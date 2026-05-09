@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 status=$(playerctl status 2>/dev/null) || exit
 case "$status" in
     Playing) icon="󰐊" ;;
@@ -7,4 +7,47 @@ case "$status" in
 esac
 artist=$(playerctl metadata artist 2>/dev/null)
 title=$(playerctl metadata title 2>/dev/null)
-printf "%s %s - %s" "$icon" "$artist" "$title"
+text="$artist - $title"
+max=30
+
+# Start a background ticker to re-signal this block while media is playing
+tmpdir="${XDG_RUNTIME_DIR:-/tmp}"
+pidfile="$tmpdir/sb-media-ticker-$USER.pid"
+if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
+    : # ticker already running
+else
+    (
+        while playerctl status 2>/dev/null | grep -q Playing; do
+            sleep 0.5
+            pkill -RTMIN+3 someblocks
+        done
+        rm -f "$pidfile"
+    ) &
+    echo $! > "$pidfile"
+fi
+
+if [ ${#text} -le $max ]; then
+    printf "%s %s" "$icon" "$text"
+    exit
+fi
+
+state="$tmpdir/sb-media-marquee-$USER"
+sep="  ·  "
+# Double the text so we can always cut a window without wrapping
+loop="$text$sep$text$sep"
+cycle=$(( ${#text} + ${#sep} ))
+
+# Read saved position; reset when track changes
+pos=0
+if [ -f "$state" ]; then
+    { read -r saved_pos; read -r saved_text; } < "$state"
+    [ "$saved_text" = "$text" ] && pos=$saved_pos
+fi
+
+# Extract visible window
+visible="${loop:pos:max}"
+
+# Save next position
+printf '%s\n%s\n' "$(( (pos + 1) % cycle ))" "$text" > "$state"
+
+printf "%s %s" "$icon" "$visible"
