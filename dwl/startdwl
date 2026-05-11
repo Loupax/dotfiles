@@ -23,14 +23,18 @@ start_bars() {
 }
 
 autostart() {
+    # Kill previous session's process group
+    if [ -f "${XDG_RUNTIME_DIR}/dwl-bars.pgid" ]; then
+        kill -- -"$(cat "${XDG_RUNTIME_DIR}/dwl-bars.pgid")" 2>/dev/null
+    fi
+    echo "$$" > "${XDG_RUNTIME_DIR}/dwl-bars.pgid"
+
     rm -f /tmp/.X11-unix/X1 /tmp/.X1-lock
     xauth add :1 . $(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
     Xwayland :1 -auth ~/.Xauthority -nolisten tcp -rootless &
     dbus-update-activation-environment --systemd DISPLAY=:1 XAUTHORITY=~/.Xauthority
 
-    if ! pgrep -u "$USER" -x somebar >/dev/null 2>&1; then
-        start_bars
-    fi
+    start_bars
 }
 
 exec dwl -s "DOTFILES='$DOTFILES'; $(declare -f start_bars autostart); autostart" "$@"
