@@ -24,10 +24,15 @@ start_bars() {
 
 autostart() {
     # Kill previous session's process group
-    if [ -f "${XDG_RUNTIME_DIR}/dwl-bars.pgid" ]; then
-        kill -- -"$(cat "${XDG_RUNTIME_DIR}/dwl-bars.pgid")" 2>/dev/null
+    pgid_file="${XDG_RUNTIME_DIR:-/tmp}/dwl-bars.pgid"
+    if [ -f "$pgid_file" ]; then
+        old_pgid=$(cat "$pgid_file")
+        case "$old_pgid" in
+            *[!0-9]*|"") ;;
+            *) [ "$old_pgid" -gt 1 ] && kill -- -"$old_pgid" 2>/dev/null ;;
+        esac
     fi
-    echo "$$" > "${XDG_RUNTIME_DIR}/dwl-bars.pgid"
+    echo "$$" > "$pgid_file"
 
     rm -f /tmp/.X11-unix/X1 /tmp/.X1-lock
     xauth add :1 . $(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
