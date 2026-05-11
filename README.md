@@ -143,6 +143,8 @@ This builds wlroots to a local prefix (`wlroots/install/`), symlinks all configs
 
 > **Note:** `blocks.h` is compiled into the someblocks binary — it is not read at runtime. After editing `blocks.h` or the block scripts' hide/show logic, re-run `make dwl-install` to rebuild. Also avoid having a stale `~/.local/bin/someblocks`; it will shadow the system-wide binary installed by `sudo make install` and changes won't take effect.
 
+> **TODO:** `startdwl` should kill any existing someblocks process before starting a new one. Stale orphaned instances can race with the new process and write frozen/stale status (including wrong time) to somebar.
+
 ## X11 apps (Steam, surf, etc.)
 
 Xwayland is started automatically on `:1` when dwl launches. `DISPLAY` and `XAUTHORITY` are propagated to D-Bus-activated services via `dbus-update-activation-environment`, so X11 apps work without any manual setup:
