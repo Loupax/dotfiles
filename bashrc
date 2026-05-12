@@ -289,4 +289,4 @@ complete -F _logcli_bash_autocomplete logcli
 eval "$(sauce completion bash 2>/dev/null)"
 
 # opencode
-export PATH=/home/k.loupasakis/.opencode/bin:$PATH
+export PATH="$HOME/.opencode/bin:$PATH"
