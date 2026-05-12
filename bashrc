@@ -92,6 +92,7 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias surf='/usr/local/bin/surf-open'
+alias ts='tmux-sessionizer'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -229,7 +230,7 @@ nvim ()
         command nvim --server "$NVIM" --remote-send "<C-\><C-n>:1wincmd w | e $abs_path<CR>:wincmd p<CR>i";
         return;
     fi;
-    local tmux_info=$(tmux display-message -p '#S_#I' 2> /dev/null);
+    local tmux_info=$(tmux display-message -p '#S_#I' 2> /dev/null | tr '/' '-');
     local tmux_pipe="/tmp/nvim_${tmux_info}.pipe";
     if [ -S "$tmux_pipe" ] && [ -n "$selection" ]; then
         echo "nvim variable trying to open file";
@@ -286,3 +287,6 @@ complete -F _logcli_bash_autocomplete logcli
 
 # secret-sauce completion
 eval "$(sauce completion bash 2>/dev/null)"
+
+# opencode
+export PATH="$HOME/.opencode/bin:$PATH"
