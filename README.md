@@ -12,6 +12,7 @@ Personal configuration files, symlinked into place. The neovim config is a git s
 | `tofi/` | `~/.config/tofi` |
 | `foot/` | `~/.config/foot` |
 | `bashrc` | `~/.bashrc` |
+| `sessionizer/tmux-sessionizer` | `~/.local/bin/tmux-sessionizer` |
 
 ### Submodule
 
@@ -161,6 +162,20 @@ surf is patched with the following:
 
 No additional configuration needed after `make install` and a session restart.
 
+## tmux-sessionizer
+
+A project/session picker powered by fzf (terminal) or dmenu (GUI). Lists directories under `~/src/` alongside running tmux sessions, then creates or switches to the selected session.
+
+```bash
+# Terminal (fzf)
+tmux-sessionizer
+
+# GUI (dmenu) — bound to a keybinding in dwl
+tmux-sessionizer --gui
+```
+
+The `ts` bash alias is a shortcut for `tmux-sessionizer`. The script must be on your PATH — the symlink setup below handles this.
+
 ## Creating symlinks
 
 Back up any existing configs, then create symlinks:
@@ -174,6 +189,8 @@ ln -s "$(pwd)/tmux" ~/.config/tmux
 ln -s "$(pwd)/tofi" ~/.config/tofi
 ln -s "$(pwd)/foot" ~/.config/foot
 ln -s "$(pwd)/bashrc" ~/.bashrc
+mkdir -p ~/.local/bin
+ln -s "$(pwd)/sessionizer/tmux-sessionizer" ~/.local/bin/tmux-sessionizer
 ```
 
 **Note:** The tmux directory only contains `tmux.conf`. After symlinking, install tpm and plugins:
