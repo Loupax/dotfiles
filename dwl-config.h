@@ -120,6 +120,7 @@ static const Key keys[] = {
 	{ MODKEY,                    XKB_KEY_Return,            spawn,            {.v = termcmd} },
 	{ MODKEY,                    XKB_KEY_d,                 spawn,            {.v = menucmd} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_n,                 spawn,            SHCMD("swaync-client -t -sw") },
+	{ MODKEY,                    XKB_KEY_s,                 spawn,            SHCMD("tmux-sessionizer --gui") },
 	{ WLR_MODIFIER_ALT|WLR_MODIFIER_CTRL, XKB_KEY_l,       spawn,            SHCMD("waylock --ignore-empty-password") },
 
 	/* window management */
