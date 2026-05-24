@@ -1,7 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 
-autostart() {
-    swaybg -i ~/Pictures/wallpapers/1293302.jpg -m center -c 928374 &
+DOTFILES="$(dirname "$(readlink -f "$0")")/.."
+
+# Source machine-local env vars (not committed to repo).
+[ -f "$HOME/.config/dwl/env" ] && . "$HOME/.config/dwl/env"
+
+start_bars() {
+    swaybg -i "$DOTFILES/wallpaper.jpg" -m fill -c 1B2E4D &
+    [ -n "$XDG_RUNTIME_DIR" ] && rm -f "$XDG_RUNTIME_DIR"/somebar-*
+    swaync &
     somebar &
     someblocks &
 
@@ -12,6 +19,30 @@ autostart() {
     # Signal someblocks on media change (signal 3)
     playerctl -F status 2>/dev/null | \
         while read -r _; do pkill -RTMIN+3 someblocks 2>/dev/null; done &
+
+    # Signal someblocks on notification change (signal 4)
+    swaync-client --subscribe 2>/dev/null | \
+        while read -r _; do pkill -RTMIN+4 someblocks 2>/dev/null; done &
 }
 
-exec dwl -s "$(declare -f autostart); autostart" "$@"
+autostart() {
+    # Kill previous session's process group
+    pgid_file="${XDG_RUNTIME_DIR:-/tmp}/dwl-bars.pgid"
+    if [ -f "$pgid_file" ]; then
+        old_pgid=$(cat "$pgid_file")
+        case "$old_pgid" in
+            *[!0-9]*|"") ;;
+            *) [ "$old_pgid" -gt 1 ] && kill -- -"$old_pgid" 2>/dev/null ;;
+        esac
+    fi
+    echo "$$" > "$pgid_file"
+
+    rm -f /tmp/.X11-unix/X1 /tmp/.X1-lock
+    xauth add :1 . $(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
+    Xwayland :1 -auth ~/.Xauthority -nolisten tcp -rootless &
+    dbus-update-activation-environment --systemd DISPLAY=:1 XAUTHORITY=~/.Xauthority
+
+    start_bars
+}
+
+exec dwl -s "DOTFILES='$DOTFILES'; $(declare -f start_bars autostart); autostart" "$@"

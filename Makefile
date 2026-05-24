@@ -32,13 +32,13 @@ WAYLAND_SCANNER   = `$(PKG_CONFIG) --variable=wayland_scanner wayland-scanner`
 WAYLAND_PROTOCOLS = `$(PKG_CONFIG) --variable=pkgdatadir wayland-protocols`
 
 cursor-shape-v1-protocol.h:
-	$(WAYLAND_SCANNER) enum-header \
+	$(WAYLAND_SCANNER) client-header \
 		$(WAYLAND_PROTOCOLS)/staging/cursor-shape/cursor-shape-v1.xml $@
 pointer-constraints-unstable-v1-protocol.h:
-	$(WAYLAND_SCANNER) enum-header \
+	$(WAYLAND_SCANNER) client-header \
 		$(WAYLAND_PROTOCOLS)/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml $@
 wlr-layer-shell-unstable-v1-protocol.h:
-	$(WAYLAND_SCANNER) enum-header \
+	$(WAYLAND_SCANNER) client-header \
 		protocols/wlr-layer-shell-unstable-v1.xml $@
 wlr-output-power-management-unstable-v1-protocol.h:
 	$(WAYLAND_SCANNER) server-header \
