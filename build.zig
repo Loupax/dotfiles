@@ -10,7 +10,7 @@ const Scanner = @import("wayland").Scanner;
 /// development with the "-dev" suffix.
 /// When a release is tagged, the "-dev" suffix should be removed for the commit that gets tagged.
 /// Directly after the tagged commit, the version should be bumped and the "-dev" suffix added.
-const version = "1.4.0-dev";
+const version = "1.5.0";
 
 pub fn build(b: *Build) !void {
     const target = b.standardTargetOptions(.{});
@@ -84,6 +84,7 @@ pub fn build(b: *Build) !void {
     scanner.generate("wl_compositor", 4);
     scanner.generate("wl_output", 3);
     scanner.generate("wl_seat", 5);
+    scanner.generate("wl_shm", 1);
     scanner.generate("ext_session_lock_manager_v1", 1);
     scanner.generate("wp_viewporter", 1);
     scanner.generate("wp_single_pixel_buffer_manager_v1", 1);
@@ -116,4 +117,6 @@ pub fn build(b: *Build) !void {
     waylock.pie = pie;
 
     b.installArtifact(waylock);
+
+    b.installFile("lock-session", "bin/lock-session");
 }
