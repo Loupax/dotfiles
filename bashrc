@@ -290,3 +290,14 @@ eval "$(sauce completion bash 2>/dev/null)"
 
 # opencode
 export PATH="$HOME/.opencode/bin:$PATH"
+
+# direnv
+command -v direnv &>/dev/null && eval "$(direnv hook bash)"
+
+# pyenv
+if command -v pyenv &>/dev/null; then
+  export PYENV_ROOT="$HOME/.pyenv"
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init -)"
+fi
+
