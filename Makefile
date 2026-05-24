@@ -70,5 +70,6 @@ waylock-install:
 	sudo cp -r $(WAYLOCK_DEST)/etc/. /etc/
 	rm -rf $(WAYLOCK_DEST)
 	sudo chmod u+s /usr/bin/waylock
+	sudo ln -sf $(DOTFILES)/waylock/lock-session /usr/bin/lock-session
 
 install: dwl-install st-install dmenu-install tabbed-install surf-install waylock-install
