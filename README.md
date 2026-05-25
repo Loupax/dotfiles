@@ -71,7 +71,7 @@ Before building, install the required packages.
 
 ```bash
 sudo pacman -S xorg-xwayland xcb-util-icccm swaync meson ninja libxinerama libxft \
-  pipewire-pulse wireplumber noto-fonts-emoji nodejs
+  pipewire-pulse wireplumber noto-fonts-emoji nodejs swayidle wlopm
 ```
 
 **Ubuntu 24.04:**
@@ -92,6 +92,8 @@ sudo apt-get install -y libinput-dev libxcb-icccm4-dev libpixman-1-dev libdrm-de
 | `pipewire-pulse` | PulseAudio compatibility layer — required for `pactl subscribe` in `startdwl`, which signals someblocks to update the volume block on keypress |
 | `noto-fonts-emoji` | Emoji fallback font — required to render flag emojis in the language block |
 | `nodejs` | Required for the caveman Claude Code plugin's session hooks |
+| `swayidle` | Idle daemon — triggers screen-off and lock after inactivity |
+| `wlopm` | Wayland output power management — turns displays off/on |
 
 After installing, enable the audio session services:
 
@@ -116,8 +118,10 @@ The PAM config intentionally bypasses `pam_faillock` — using `system-auth` wou
 Lock the screen with **Alt+Ctrl+L** or run directly:
 
 ```bash
-waylock --ignore-empty-password
+lock-session        # uses $WAYLOCK_VIDEO if set, falls back to plain waylock
 ```
+
+`swayidle` handles automatic locking — displays turn off after 3 minutes idle, session locks after 5 minutes, and also locks before suspend.
 
 > **Note:** Killing waylock forcefully (e.g. `pkill waylock`) will crash dwl. This is by design in the `ext-session-lock-v1` protocol — the compositor terminates the session to prevent the locker being bypassed. If locked out, switch to a TTY with **Ctrl+Alt+F2**, log in, then run `loginctl unlock-session <id>` or reboot cleanly.
 
@@ -145,6 +149,18 @@ This builds wlroots to a local prefix (`wlroots/install/`), symlinks all configs
 > **Note:** `blocks.h` is compiled into the someblocks binary — it is not read at runtime. After editing `blocks.h` or the block scripts' hide/show logic, re-run `make dwl-install` to rebuild. Also avoid having a stale `~/.local/bin/someblocks`; it will shadow the system-wide binary installed by `sudo make install` and changes won't take effect.
 
 > **TODO:** `startdwl` should kill any existing someblocks process before starting a new one. Stale orphaned instances can race with the new process and write frozen/stale status (including wrong time) to somebar.
+
+## Machine-local session environment
+
+`~/.config/dwl/env` is sourced by `startdwl` before launching the compositor. It is not committed to this repo — use it for machine-specific values:
+
+```bash
+# ~/.config/dwl/env
+export WAYLOCK_VIDEO="$HOME/Videos/lockscreen-1920x1080@25fps.bgra"
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+```
+
+The PATH extension is important: DWL's keybinding spawns inherit the compositor's environment, which only has the system PATH. Tools installed to `~/.local/bin` (like `tmux-sessionizer`) won't be found without it.
 
 ## X11 apps (Steam, surf, etc.)
 
