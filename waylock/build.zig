@@ -119,4 +119,17 @@ pub fn build(b: *Build) !void {
     b.installArtifact(waylock);
 
     b.installFile("lock-session", "bin/lock-session");
+
+    const test_module = b.createModule(.{
+        .root_source_file = b.path("src/Animation.zig"),
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+    test_module.addImport("wayland", wayland);
+
+    const animation_tests = b.addTest(.{ .root_module = test_module, .use_llvm = use_llvm, .use_lld = use_llvm });
+
+    const test_step = b.step("test", "Run unit tests");
+    test_step.dependOn(&b.addRunArtifact(animation_tests).step);
 }

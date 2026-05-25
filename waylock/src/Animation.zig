@@ -19,6 +19,8 @@ shm_data: []align(std.heap.page_size_min) u8,
 buffers: [2]Buffer,
 /// Index of the buffer we write into next.
 back: u1 = 0,
+/// Bytes already read into the back buffer for the current partial frame.
+partial_offset: usize = 0,
 
 const Buffer = struct {
     wl_buf: *wl.Buffer,
@@ -30,11 +32,6 @@ const Buffer = struct {
 pub fn init(shm: *wl.Shm, fd: posix.fd_t, width: u32, height: u32, fps: u32) !Animation {
     const frame_size: usize = @as(usize, width) * height * 4;
     const pool_size: usize = frame_size * 2;
-
-    // Set non-blocking so reads in next_frame never stall the event loop.
-    const fl = std.c.fcntl(fd, std.c.F.GETFL, @as(c_int, 0));
-    const nonblock: c_int = @bitCast(@as(u32, @bitCast(std.c.O{ .NONBLOCK = true })));
-    _ = std.c.fcntl(fd, std.c.F.SETFL, fl | nonblock);
 
     var name_buf: [32]u8 = undefined;
     const shm_name = std.fmt.bufPrintZ(&name_buf, "/waylock-{d}", .{std.c.getpid()}) catch unreachable;
@@ -93,15 +90,14 @@ fn buffer_listener(_: *wl.Buffer, event: wl.Buffer.Event, buf: *Buffer) void {
 
 /// Read one frame from the fd into the back buffer, apply the color overlay,
 /// then return the buffer to attach to surfaces. Returns null if the back
-/// buffer is still held by the compositor — caller should skip this tick.
+/// buffer is still held by the compositor or the frame is not yet complete.
 pub fn next_frame(anim: *Animation, overlay_color: u24, overlay_alpha: u8) !?*wl.Buffer {
     const back = &anim.buffers[anim.back];
     if (back.in_use) return null;
 
-    read_all(anim.fd, back.data) catch |err| switch (err) {
-        error.WouldBlock => return null,
-        else => return err,
-    };
+    const done = try read_partial(anim.fd, back.data, &anim.partial_offset);
+    if (!done) return null;
+
     blend(back.data, overlay_color, overlay_alpha);
 
     back.in_use = true;
@@ -117,16 +113,62 @@ pub fn deinit(anim: *Animation) void {
     _ = std.c.close(anim.fd);
 }
 
-fn read_all(fd: posix.fd_t, buf: []u8) !void {
-    var offset: usize = 0;
-    while (offset < buf.len) {
-        const n = posix.read(fd, buf[offset..]) catch |err| switch (err) {
-            error.WouldBlock => return error.WouldBlock,
-            else => return err,
-        };
+/// Read into buf starting at *offset, advancing it as bytes arrive.
+/// Returns true when a full frame is complete (offset wraps to 0).
+/// Returns error.EndOfStream if the pipe closes before the frame is complete.
+fn read_partial(fd: posix.fd_t, buf: []u8, offset: *usize) !bool {
+    while (offset.* < buf.len) {
+        const n = try posix.read(fd, buf[offset.*..]);
         if (n == 0) return error.EndOfStream;
-        offset += n;
+        offset.* += n;
     }
+    offset.* = 0;
+    return true;
+}
+
+test "read_partial throughput exceeds 20fps at 1920x1080" {
+    const frame_size = 1920 * 1080 * 4;
+    const frames_to_test = 25;
+
+    const buf = try std.testing.allocator.alloc(u8, frame_size);
+    defer std.testing.allocator.free(buf);
+
+    var pipe_fds: [2]std.c.fd_t = undefined;
+    if (std.c.pipe(&pipe_fds) != 0) return error.SystemResources;
+    defer _ = std.c.close(pipe_fds[0]);
+
+    const thread = try std.Thread.spawn(.{}, struct {
+        fn run(fd: std.c.fd_t) void {
+            defer _ = std.c.close(fd);
+            const frame = std.heap.page_allocator.alloc(u8, frame_size) catch return;
+            defer std.heap.page_allocator.free(frame);
+            @memset(frame, 0xAB);
+            for (0..frames_to_test) |_| {
+                var written: usize = 0;
+                while (written < frame_size) {
+                    const n = std.c.write(fd, frame.ptr + written, frame_size - written);
+                    if (n <= 0) return;
+                    written += @intCast(n);
+                }
+            }
+        }
+    }.run, .{pipe_fds[1]});
+
+    var offset: usize = 0;
+    var frames: u32 = 0;
+    var t_start: std.c.timespec = undefined;
+    var t_end: std.c.timespec = undefined;
+    _ = std.c.clock_gettime(std.c.CLOCK.MONOTONIC, &t_start);
+    while (frames < frames_to_test) {
+        if (try read_partial(pipe_fds[0], buf, &offset)) frames += 1;
+    }
+    _ = std.c.clock_gettime(std.c.CLOCK.MONOTONIC, &t_end);
+    thread.join();
+
+    const elapsed_ns: f64 = @as(f64, @floatFromInt(t_end.sec - t_start.sec)) * 1e9 +
+        @as(f64, @floatFromInt(t_end.nsec - t_start.nsec));
+    const fps = @as(f64, frames_to_test) * 1e9 / elapsed_ns;
+    try std.testing.expect(fps >= 20.0);
 }
 
 /// Alpha-blend a solid color over the frame in-place.
