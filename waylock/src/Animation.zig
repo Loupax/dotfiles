@@ -127,6 +127,51 @@ fn read_partial(fd: posix.fd_t, buf: []u8, offset: *usize) !bool {
     return true;
 }
 
+test "read_partial throughput exceeds 20fps at 1920x1080" {
+    const frame_size = 1920 * 1080 * 4;
+    const frames_to_test = 25;
+
+    const buf = try std.testing.allocator.alloc(u8, frame_size);
+    defer std.testing.allocator.free(buf);
+
+    var pipe_fds: [2]std.c.fd_t = undefined;
+    if (std.c.pipe(&pipe_fds) != 0) return error.SystemResources;
+    defer _ = std.c.close(pipe_fds[0]);
+
+    const thread = try std.Thread.spawn(.{}, struct {
+        fn run(fd: std.c.fd_t) void {
+            defer _ = std.c.close(fd);
+            const frame = std.heap.page_allocator.alloc(u8, frame_size) catch return;
+            defer std.heap.page_allocator.free(frame);
+            @memset(frame, 0xAB);
+            for (0..frames_to_test) |_| {
+                var written: usize = 0;
+                while (written < frame_size) {
+                    const n = std.c.write(fd, frame.ptr + written, frame_size - written);
+                    if (n <= 0) return;
+                    written += @intCast(n);
+                }
+            }
+        }
+    }.run, .{pipe_fds[1]});
+
+    var offset: usize = 0;
+    var frames: u32 = 0;
+    var t_start: std.c.timespec = undefined;
+    var t_end: std.c.timespec = undefined;
+    _ = std.c.clock_gettime(std.c.CLOCK.MONOTONIC, &t_start);
+    while (frames < frames_to_test) {
+        if (try read_partial(pipe_fds[0], buf, &offset)) frames += 1;
+    }
+    _ = std.c.clock_gettime(std.c.CLOCK.MONOTONIC, &t_end);
+    thread.join();
+
+    const elapsed_ns: f64 = @as(f64, @floatFromInt(t_end.sec - t_start.sec)) * 1e9 +
+        @as(f64, @floatFromInt(t_end.nsec - t_start.nsec));
+    const fps = @as(f64, frames_to_test) * 1e9 / elapsed_ns;
+    try std.testing.expect(fps >= 20.0);
+}
+
 /// Alpha-blend a solid color over the frame in-place.
 /// Data layout: B G R X per pixel (xrgb8888 / ffmpeg bgra).
 fn blend(data: []u8, color: u24, alpha: u8) void {
