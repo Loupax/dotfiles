@@ -33,7 +33,6 @@ pub fn init(shm: *wl.Shm, fd: posix.fd_t, width: u32, height: u32, fps: u32) !An
     const frame_size: usize = @as(usize, width) * height * 4;
     const pool_size: usize = frame_size * 2;
 
-
     var name_buf: [32]u8 = undefined;
     const shm_name = std.fmt.bufPrintZ(&name_buf, "/waylock-{d}", .{std.c.getpid()}) catch unreachable;
     const shm_flags: c_int = @bitCast(@as(u32, @bitCast(std.c.O{ .ACCMODE = .RDWR, .CREAT = true, .EXCL = true })));
@@ -116,7 +115,7 @@ pub fn deinit(anim: *Animation) void {
 
 /// Read into buf starting at *offset, advancing it as bytes arrive.
 /// Returns true when a full frame is complete (offset wraps to 0).
-/// Returns false only on EOF (pipe closed before frame was complete).
+/// Returns error.EndOfStream if the pipe closes before the frame is complete.
 fn read_partial(fd: posix.fd_t, buf: []u8, offset: *usize) !bool {
     while (offset.* < buf.len) {
         const n = try posix.read(fd, buf[offset.*..]);
