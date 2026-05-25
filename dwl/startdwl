@@ -42,6 +42,12 @@ autostart() {
     Xwayland :1 -auth ~/.Xauthority -nolisten tcp -rootless &
     dbus-update-activation-environment --systemd DISPLAY=:1 XAUTHORITY=~/.Xauthority
 
+    swayidle -w \
+        timeout 180  'wlopm --off \*' \
+        resume       'wlopm --on \*' \
+        timeout 300  'lock-session' \
+        before-sleep 'lock-session' &
+
     start_bars
 }
 
