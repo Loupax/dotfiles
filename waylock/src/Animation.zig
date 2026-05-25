@@ -33,10 +33,6 @@ pub fn init(shm: *wl.Shm, fd: posix.fd_t, width: u32, height: u32, fps: u32) !An
     const frame_size: usize = @as(usize, width) * height * 4;
     const pool_size: usize = frame_size * 2;
 
-    // Set non-blocking so reads in next_frame never stall the event loop.
-    const fl = std.c.fcntl(fd, std.c.F.GETFL, @as(c_int, 0));
-    const nonblock: c_int = @bitCast(@as(u32, @bitCast(std.c.O{ .NONBLOCK = true })));
-    _ = std.c.fcntl(fd, std.c.F.SETFL, fl | nonblock);
 
     var name_buf: [32]u8 = undefined;
     const shm_name = std.fmt.bufPrintZ(&name_buf, "/waylock-{d}", .{std.c.getpid()}) catch unreachable;
@@ -100,10 +96,7 @@ pub fn next_frame(anim: *Animation, overlay_color: u24, overlay_alpha: u8) !?*wl
     const back = &anim.buffers[anim.back];
     if (back.in_use) return null;
 
-    const done = read_partial(anim.fd, back.data, &anim.partial_offset) catch |err| switch (err) {
-        error.WouldBlock => return null,
-        else => return err,
-    };
+    const done = try read_partial(anim.fd, back.data, &anim.partial_offset);
     if (!done) return null;
 
     blend(back.data, overlay_color, overlay_alpha);
@@ -123,15 +116,10 @@ pub fn deinit(anim: *Animation) void {
 
 /// Read into buf starting at *offset, advancing it as bytes arrive.
 /// Returns true when a full frame is complete (offset wraps to 0).
-/// Returns false when the pipe is temporarily empty (WouldBlock).
-/// Progress is preserved across calls so large frames spanning multiple
-/// pipe-buffer fills (e.g. raw 1080p BGRA ~8 MB) are handled correctly.
+/// Returns false only on EOF (pipe closed before frame was complete).
 fn read_partial(fd: posix.fd_t, buf: []u8, offset: *usize) !bool {
     while (offset.* < buf.len) {
-        const n = posix.read(fd, buf[offset.*..]) catch |err| switch (err) {
-            error.WouldBlock => return false,
-            else => return err,
-        };
+        const n = try posix.read(fd, buf[offset.*..]);
         if (n == 0) return error.EndOfStream;
         offset.* += n;
     }
