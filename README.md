@@ -80,7 +80,7 @@ sudo pacman -S xorg-xwayland xcb-util-icccm swaync meson ninja libxinerama libxf
 sudo apt-get install -y libinput-dev libxcb-icccm4-dev libpixman-1-dev libdrm-dev \
   libxkbcommon-dev wayland-protocols libseat-dev hwdata libdisplay-info-dev \
   libliftoff-dev libxcb-composite0-dev libxcb-render0-dev libxcb-xinput-dev \
-  libxcb-ewmh-dev libxcb-res0-dev xwayland swaync meson ninja-build
+  libxcb-ewmh-dev libxcb-res0-dev xwayland swaync meson ninja-build libpam0g-dev
 ```
 
 | Package | Purpose |
