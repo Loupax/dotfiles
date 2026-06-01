@@ -29,7 +29,7 @@ fi
 session_name=$(echo "$selected" | tr '.:' '__')
 
 # 4. Create the session if it doesn't already exist
-if ! tmux has-session -t "$session_name" 2>/dev/null; then
+if ! tmux has-session -t "=$session_name" 2>/dev/null; then
     # Check if the selection maps to a real directory inside $HOME
     if [ -d "$HOME/$selected" ]; then
         tmux new-session -d -s "$session_name" -c "$HOME/$selected"
@@ -41,9 +41,9 @@ fi
 
 # 5. Attach based on context
 if [ "$1" = "--gui" ]; then
-    st -e tmux attach-session -t "$session_name"
+    st -e tmux attach-session -t "=$session_name"
 elif [ -n "$TMUX" ]; then
-    tmux switch-client -t "$session_name"
+    tmux switch-client -t "=$session_name"
 else
-    tmux attach-session -t "$session_name"
+    tmux attach-session -t "=$session_name"
 fi
