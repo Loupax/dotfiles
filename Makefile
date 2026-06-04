@@ -72,4 +72,9 @@ waylock-install:
 	sudo chmod u+s /usr/bin/waylock
 	sudo ln -sf $(DOTFILES)/waylock/lock-session /usr/bin/lock-session
 
-install: dwl-install st-install dmenu-install tabbed-install surf-install waylock-install
+scripts-install:
+	mkdir -p ~/.local/bin
+	ln -sf $(DOTFILES)/scripts/dmenu_run_history ~/.local/bin/dmenu_run_history
+	ln -sf $(DOTFILES)/sessionizer/tmux-sessionizer ~/.local/bin/tmux-sessionizer
+
+install: dwl-install st-install dmenu-install tabbed-install surf-install waylock-install scripts-install

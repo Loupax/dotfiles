@@ -1,0 +1,19 @@
+#!/bin/bash
+# A dmenu wrapper that sorts commands by frequency
+CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/dmenu_history"
+mkdir -p "$(dirname "$CACHE")"
+touch "$CACHE"
+
+cmd=$(
+	{
+		# 1. Tally history, sort by frequency (highest first)
+		sort "$CACHE" 2>/dev/null | uniq -c | sort -rn | sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+//'
+		# 2. Append all other commands
+		dmenu_path
+	} | awk '!seen[$0]++' | dmenu "$@"
+)
+
+if [ -n "$cmd" ]; then
+	echo "$cmd" >> "$CACHE"
+	eval "exec $cmd"
+fi
