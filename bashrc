@@ -302,6 +302,3 @@ if command -v pyenv &>/dev/null; then
 fi
 
 
-
-# Added by Antigravity CLI installer
-export PATH="/home/k.loupasakis/.local/bin:$PATH"
