@@ -7,7 +7,7 @@ touch "$CACHE"
 cmd=$(
 	{
 		# 1. Tally history, sort by frequency (highest first)
-		sort "$CACHE" 2>/dev/null | uniq -c | sort -rn | awk '{$1=""; print substr($0, 2)}'
+		sort "$CACHE" 2>/dev/null | uniq -c | sort -rn | sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+//'
 		# 2. Append all other commands
 		dmenu_path
 	} | awk '!seen[$0]++' | dmenu "$@"
@@ -15,5 +15,5 @@ cmd=$(
 
 if [ -n "$cmd" ]; then
 	echo "$cmd" >> "$CACHE"
-	exec $cmd
+	eval "exec $cmd"
 fi
