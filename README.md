@@ -80,7 +80,8 @@ sudo pacman -S xorg-xwayland xcb-util-icccm swaync meson ninja libxinerama libxf
 sudo apt-get install -y libinput-dev libxcb-icccm4-dev libpixman-1-dev libdrm-dev \
   libxkbcommon-dev wayland-protocols libseat-dev hwdata libdisplay-info-dev \
   libliftoff-dev libxcb-composite0-dev libxcb-render0-dev libxcb-xinput-dev \
-  libxcb-ewmh-dev libxcb-res0-dev xwayland swaync meson ninja-build libpam0g-dev
+  libxcb-ewmh-dev libxcb-res0-dev xwayland swaync meson ninja-build libpam0g-dev \
+  xdg-desktop-portal xdg-desktop-portal-wlr
 ```
 
 | Package | Purpose |
@@ -94,6 +95,8 @@ sudo apt-get install -y libinput-dev libxcb-icccm4-dev libpixman-1-dev libdrm-de
 | `nodejs` | Required for the caveman Claude Code plugin's session hooks |
 | `swayidle` | Idle daemon — triggers screen-off and lock after inactivity |
 | `wlopm` | Wayland output power management — turns displays off/on |
+| `xdg-desktop-portal` | Portal service — required for screen sharing via PipeWire |
+| `xdg-desktop-portal-wlr` | wlroots backend for the portal — handles `ScreenCast` and `Screenshot` interfaces |
 
 After installing, enable the audio session services:
 
@@ -161,6 +164,28 @@ export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 ```
 
 The PATH extension is important: DWL's keybinding spawns inherit the compositor's environment, which only has the system PATH. Tools installed to `~/.local/bin` (like `tmux-sessionizer`) won't be found without it.
+
+## Screen sharing (Google Meet, Zoom, etc.)
+
+Screen sharing on Wayland requires `xdg-desktop-portal-wlr` to handle the `ScreenCast` portal interface. It starts automatically via D-Bus activation when needed — no manual service management required — but two one-time setup steps are needed.
+
+**1. `~/.config/xdg-desktop-portal/portals.conf`** — tells `xdg-desktop-portal` which backend handles each interface. Without this, the portal falls back to gtk for everything and never uses wlr for screen capture:
+
+```ini
+[preferred]
+default=gtk
+org.freedesktop.impl.portal.ScreenCast=wlr
+org.freedesktop.impl.portal.Screenshot=wlr
+```
+
+**2. `~/.config/chrome-flags.conf`** — Chrome must run natively on Wayland (not via XWayland) to use PipeWire for screen capture. Without `--ozone-platform=wayland`, only tab sharing works (Chrome handles that internally without the portal):
+
+```
+--ozone-platform=wayland
+--enable-features=WebRTCPipeWireCapturer
+```
+
+`startdwl` exports `WAYLAND_DISPLAY` to the systemd user environment via `dbus-update-activation-environment --systemd`, which satisfies the `ConditionEnvironment=WAYLAND_DISPLAY` check on `xdg-desktop-portal-wlr.service` and allows it to start on demand.
 
 ## X11 apps (Steam, surf, etc.)
 

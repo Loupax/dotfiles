@@ -40,7 +40,8 @@ autostart() {
     rm -f /tmp/.X11-unix/X1 /tmp/.X1-lock
     xauth add :1 . $(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
     Xwayland :1 -auth ~/.Xauthority -nolisten tcp -rootless &
-    dbus-update-activation-environment --systemd DISPLAY=:1 XAUTHORITY=~/.Xauthority
+    dbus-update-activation-environment --systemd DISPLAY=:1 XAUTHORITY=~/.Xauthority \
+        XDG_CURRENT_DESKTOP=sway WAYLAND_DISPLAY="$WAYLAND_DISPLAY"
 
     swayidle -w timeout 180 'lock-session' before-sleep 'lock-session' &
     swayidle timeout 300 'wlopm --off \*' resume 'wlopm --on \*' &

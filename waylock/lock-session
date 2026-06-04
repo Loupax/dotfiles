@@ -1,7 +1,19 @@
 #!/bin/bash
 set -e
 
+# Hold an exclusive lock for the duration of waylock + a 2s grace period.
+# This prevents concurrent invocations and gives the compositor time to
+# register activity after unlock, so swayidle doesn't immediately re-lock.
+exec 9>"/run/user/$(id -u)/lock-session.lock"
+flock -n 9 || exit 0
+
 pgrep -x waylock > /dev/null && exit 0
+
+_run_waylock() {
+    "$@"
+    exec 3<&- 2>/dev/null || true  # immediately stop the animation source
+    sleep 2
+}
 
 if [ -n "$1" ]; then
     file="$1"
@@ -10,7 +22,8 @@ elif [ -n "$WAYLOCK_VIDEO" ]; then
 fi
 
 if [ -z "$file" ]; then
-    exec waylock
+    _run_waylock waylock
+    exit
 fi
 
 if [[ "$file" == *.bgra ]]; then
@@ -25,12 +38,13 @@ if [[ "$file" == *.bgra ]]; then
         echo "lock-session: expected filename format: name-WxH@Nfps.bgra (e.g. video-1920x1080@25fps.bgra)" >&2
         exit 1
     fi
-    exec waylock \
+    _run_waylock waylock \
         -animation-fd 3 \
         -animation-width "$w" \
         -animation-height "$h" \
         ${fps:+-animation-fps "$fps"} \
         3< <(while true; do cat "$file"; done)
+    exit
 fi
 
 read -r w h < <(ffprobe -v error -select_streams v:0 \
@@ -41,7 +55,7 @@ fps=$(ffprobe -v error -select_streams v:0 \
     -show_entries stream=r_frame_rate \
     -of csv=p=0 "$file" | awk -F/ '{printf "%d", $1/$2}')
 
-exec waylock \
+_run_waylock waylock \
     -animation-fd 3 \
     -animation-width "$w" \
     -animation-height "$h" \
