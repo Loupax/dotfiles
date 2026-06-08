@@ -28,18 +28,6 @@ start_bars() {
 }
 
 idle_inhibit_when_playing() {
-    # playerctld is an MPRIS proxy daemon that aggregates all media players
-    # into a single virtual player. We start it here because it is the reason
-    # `playerctl -F status` below stays alive indefinitely: without it,
-    # playerctl exits as soon as the last media player closes, which would
-    # silently kill this function. With playerctld running, playerctl always
-    # has a proxy to talk to and blocks forever waiting for the next event.
-    playerctld &
-    local playerctld_pid=$!
-    # This function always runs in a subshell (called with &), so trap EXIT
-    # is scoped to that subshell and won't affect the parent shell.
-    trap 'kill "$playerctld_pid" "$inhibit_pid" 2>/dev/null; wait "$playerctld_pid" "$inhibit_pid" 2>/dev/null' EXIT
-
     local inhibit_pid=""
     while IFS= read -r status; do
         if [ "$status" = "Playing" ]; then
@@ -71,6 +59,7 @@ autostart() {
     swayidle -w timeout 180 'lock-session' before-sleep 'lock-session' &
     swayidle timeout 300 'wlopm --off \*' resume 'wlopm --on \*' &
 
+    playerctld &
     idle_inhibit_when_playing &
     start_bars
 }
