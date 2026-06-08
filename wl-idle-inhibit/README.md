@@ -42,17 +42,17 @@ sudo install -m755 wl-idle-inhibit /usr/local/bin/
 # Hold idle inhibitor until Ctrl-C
 wl-idle-inhibit
 
-# Typical wrapper: inhibit while playerctl reports Playing
-while true; do
-    while IFS= read -r status; do
-        if [ "$status" = "Playing" ]; then
-            wl-idle-inhibit & pid=$!
-        else
-            kill "$pid" 2>/dev/null; pid=""
-        fi
-    done < <(playerctl -F status 2>/dev/null)
-    sleep 5
-done
+# Typical wrapper: inhibit while playerctl reports Playing.
+# Requires playerctld so that playerctl -F status stays alive indefinitely.
+playerctld &
+pid=""
+while IFS= read -r status; do
+    if [ "$status" = "Playing" ]; then
+        [ -z "$pid" ] && { wl-idle-inhibit & pid=$!; }
+    else
+        [ -n "$pid" ] && { kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null; pid=""; }
+    fi
+done < <(playerctl -F status 2>/dev/null)
 ```
 
 The `startdwl` script runs this wrapper automatically on session start.
