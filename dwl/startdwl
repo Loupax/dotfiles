@@ -29,29 +29,13 @@ start_bars() {
 
 idle_inhibit_when_playing() {
     local inhibit_pid=""
-    while true; do
-        while IFS= read -r status; do
-            if [ "$status" = "Playing" ]; then
-                if [ -z "$inhibit_pid" ]; then
-                    wl-idle-inhibit &
-                    inhibit_pid=$!
-                fi
-            else
-                if [ -n "$inhibit_pid" ]; then
-                    kill "$inhibit_pid" 2>/dev/null
-                    wait "$inhibit_pid" 2>/dev/null
-                    inhibit_pid=""
-                fi
-            fi
-        done < <(playerctl -F status 2>/dev/null)
-        # playerctl exited (no players running); clean up and retry
-        if [ -n "$inhibit_pid" ]; then
-            kill "$inhibit_pid" 2>/dev/null
-            wait "$inhibit_pid" 2>/dev/null
-            inhibit_pid=""
+    while IFS= read -r status; do
+        if [ "$status" = "Playing" ]; then
+            [ -z "$inhibit_pid" ] && { wl-idle-inhibit & inhibit_pid=$!; }
+        else
+            [ -n "$inhibit_pid" ] && { kill "$inhibit_pid" 2>/dev/null; wait "$inhibit_pid" 2>/dev/null; inhibit_pid=""; }
         fi
-        sleep 5
-    done
+    done < <(playerctl -F status 2>/dev/null)
 }
 
 autostart() {
@@ -75,6 +59,7 @@ autostart() {
     swayidle -w timeout 180 'lock-session' before-sleep 'lock-session' &
     swayidle timeout 300 'wlopm --off \*' resume 'wlopm --on \*' &
 
+    playerctld &
     idle_inhibit_when_playing &
     start_bars
 }
