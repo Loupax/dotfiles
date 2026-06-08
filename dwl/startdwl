@@ -27,6 +27,33 @@ start_bars() {
         while read -r _; do pkill -RTMIN+4 someblocks 2>/dev/null; done &
 }
 
+idle_inhibit_when_playing() {
+    local inhibit_pid=""
+    while true; do
+        while IFS= read -r status; do
+            if [ "$status" = "Playing" ]; then
+                if [ -z "$inhibit_pid" ]; then
+                    wl-idle-inhibit &
+                    inhibit_pid=$!
+                fi
+            else
+                if [ -n "$inhibit_pid" ]; then
+                    kill "$inhibit_pid" 2>/dev/null
+                    wait "$inhibit_pid" 2>/dev/null
+                    inhibit_pid=""
+                fi
+            fi
+        done < <(playerctl -F status 2>/dev/null)
+        # playerctl exited (no players running); clean up and retry
+        if [ -n "$inhibit_pid" ]; then
+            kill "$inhibit_pid" 2>/dev/null
+            wait "$inhibit_pid" 2>/dev/null
+            inhibit_pid=""
+        fi
+        sleep 5
+    done
+}
+
 autostart() {
     # Kill previous session's process group
     pgid_file="${XDG_RUNTIME_DIR:-/tmp}/dwl-bars.pgid"
@@ -48,7 +75,8 @@ autostart() {
     swayidle -w timeout 180 'lock-session' before-sleep 'lock-session' &
     swayidle timeout 300 'wlopm --off \*' resume 'wlopm --on \*' &
 
+    idle_inhibit_when_playing &
     start_bars
 }
 
-exec dwl -s "DOTFILES='$DOTFILES'; $(declare -f start_bars autostart); autostart" "$@"
+exec dwl -s "DOTFILES='$DOTFILES'; $(declare -f start_bars idle_inhibit_when_playing autostart); autostart" "$@"

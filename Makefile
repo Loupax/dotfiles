@@ -72,9 +72,14 @@ waylock-install:
 	sudo chmod u+s /usr/bin/waylock
 	sudo ln -sf $(DOTFILES)/waylock/lock-session /usr/bin/lock-session
 
+wl-idle-inhibit-install:
+	cd wl-idle-inhibit && go build -o wl-idle-inhibit .
+	sudo install -m755 wl-idle-inhibit/wl-idle-inhibit /usr/local/bin/wl-idle-inhibit
+	rm wl-idle-inhibit/wl-idle-inhibit
+
 scripts-install:
 	mkdir -p ~/.local/bin
 	ln -sf $(DOTFILES)/scripts/dmenu_run_history ~/.local/bin/dmenu_run_history
 	ln -sf $(DOTFILES)/sessionizer/tmux-sessionizer ~/.local/bin/tmux-sessionizer
 
-install: dwl-install st-install dmenu-install tabbed-install surf-install waylock-install scripts-install
+install: dwl-install st-install dmenu-install tabbed-install surf-install waylock-install scripts-install wl-idle-inhibit-install
