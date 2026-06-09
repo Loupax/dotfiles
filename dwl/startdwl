@@ -56,6 +56,13 @@ autostart() {
     dbus-update-activation-environment --systemd DISPLAY=:1 XAUTHORITY=~/.Xauthority \
         XDG_CURRENT_DESKTOP=sway WAYLAND_DISPLAY="$WAYLAND_DISPLAY"
 
+    # dwl creates the Wayland socket before running this script, but may
+    # not be fully ready to accept client connections immediately. Poll
+    # until the socket file exists before launching any Wayland clients.
+    until [ -S "${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY:-wayland-0}" ]; do
+        sleep 0.05
+    done
+
     swayidle -w timeout 180 'lock-session' before-sleep 'lock-session' &
     swayidle timeout 300 'wlopm --off \*' resume 'wlopm --on \*' &
 
