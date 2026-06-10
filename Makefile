@@ -80,6 +80,7 @@ wl-idle-inhibit-install:
 scripts-install:
 	mkdir -p ~/.local/bin
 	ln -sf $(DOTFILES)/scripts/dmenu_run_history ~/.local/bin/dmenu_run_history
+	ln -sf $(DOTFILES)/scripts/recorder ~/.local/bin/recorder
 	ln -sf $(DOTFILES)/sessionizer/tmux-sessionizer ~/.local/bin/tmux-sessionizer
 
 install: dwl-install st-install dmenu-install tabbed-install surf-install waylock-install scripts-install wl-idle-inhibit-install
