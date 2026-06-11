@@ -70,7 +70,7 @@ Before building, install the required packages.
 **Arch Linux:**
 
 ```bash
-sudo pacman -S xorg-xwayland xcb-util-icccm swaync meson ninja libxinerama libxft \
+sudo pacman -S xorg-xwayland xcb-util-wm swaync meson ninja libxinerama libxft \
   pipewire-pulse wireplumber noto-fonts-emoji nodejs swayidle wlopm
 ```
 
@@ -87,7 +87,7 @@ sudo apt-get install -y libinput-dev libxcb-icccm4-dev libpixman-1-dev libdrm-de
 | Package | Purpose |
 |---|---|
 | `xorg-xwayland` | X11 compatibility layer — required to run X11 apps (Steam, etc.) |
-| `xcb-util-icccm` / `libxcb-icccm4-dev` | Required to build dwl with Xwayland support |
+| `xcb-util-wm` / `libxcb-icccm4-dev` | Required to build dwl with Xwayland support |
 | `swaync` | Notification daemon |
 | `meson`, `ninja` | Build system for wlroots and somebar |
 | `pipewire-pulse` | PulseAudio compatibility layer — required for `pactl subscribe` in `startdwl`, which signals someblocks to update the volume block on keypress |
@@ -151,7 +151,6 @@ This builds wlroots to a local prefix (`wlroots/install/`), symlinks all configs
 
 > **Note:** `blocks.h` is compiled into the someblocks binary — it is not read at runtime. After editing `blocks.h` or the block scripts' hide/show logic, re-run `make dwl-install` to rebuild. Also avoid having a stale `~/.local/bin/someblocks`; it will shadow the system-wide binary installed by `sudo make install` and changes won't take effect.
 
-> **TODO:** `startdwl` should kill any existing someblocks process before starting a new one. Stale orphaned instances can race with the new process and write frozen/stale status (including wrong time) to somebar.
 
 ## Machine-local session environment
 
