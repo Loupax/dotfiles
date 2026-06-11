@@ -2928,7 +2928,7 @@ applyprofile(void)
 		for (j = 0; j < p->count; j++) {
 			wl_list_for_each(m, &mons, link) {
 				if (m->wlr_output->enabled &&
-				    strstr(m->wlr_output->name, p->outputs[j].name)) {
+				    strcmp(m->wlr_output->name, p->outputs[j].name) == 0) {
 					matched++;
 					break;
 				}
@@ -2943,7 +2943,7 @@ applyprofile(void)
 			o = &p->outputs[j];
 			wl_list_for_each(m, &mons, link) {
 				if (m->wlr_output->enabled &&
-				    strstr(m->wlr_output->name, o->name)) {
+				    strcmp(m->wlr_output->name, o->name) == 0) {
 					wlr_output_layout_add(output_layout,
 					    m->wlr_output, o->x, o->y);
 					break;
@@ -2958,6 +2958,9 @@ applyprofile(void)
 void
 updatemons(struct wl_listener *listener, void *data)
 {
+	if (profile_locked)
+		return;
+
 	/*
 	 * Called whenever the output layout changes: adding or removing a
 	 * monitor, changing an output's mode or position, etc. This is where
