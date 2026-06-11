@@ -172,7 +172,7 @@ static const Key keys[] = {
 
 	/* screenshots */
 	{ 0,                         XKB_KEY_Print,             spawn, SHCMD("grim -g \"$(slurp)\" - | wl-copy") },
-	{ 0,                         XKB_KEY_Scroll_Lock,       spawn, SHCMD("grim -g \"$(slurp)\" - | swappy -f -") },
+	{ 0,                         XKB_KEY_Scroll_Lock,       spawn, SHCMD("area=$(slurp) && grim -g \"$area\" - | swappy -f -") },
 	{ MODKEY|WLR_MODIFIER_CTRL,  XKB_KEY_4,                 spawn, SHCMD("grim -g \"$(slurp)\" - | tee \"$HOME/Pictures/Screenshots/$(date +%s).png\" | wl-copy") },
 
 	/* session */
