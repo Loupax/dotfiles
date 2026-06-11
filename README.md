@@ -13,6 +13,7 @@ Personal configuration files, symlinked into place. The neovim config is a git s
 | `foot/` | `~/.config/foot` |
 | `bashrc` | `~/.bashrc` |
 | `sessionizer/tmux-sessionizer` | `~/.local/bin/tmux-sessionizer` |
+| `scripts/recorder` | `~/.local/bin/recorder` |
 
 ### Submodule
 
@@ -215,6 +216,16 @@ tmux-sessionizer --gui
 ```
 
 The `ts` bash alias is a shortcut for `tmux-sessionizer`. The script must be on your PATH — the symlink setup below handles this.
+
+## recorder
+
+A Wayland screen recorder front-end using `wf-recorder`. Presents a dmenu menu to choose between region and fullscreen capture, then records to `~/Videos/Screencaps/` as VP9 MKV with audio. A persistent notification appears during recording with a **Stop Recording** action button — clicking it sends SIGTERM to the specific wf-recorder instance.
+
+**Dependencies:** `wf-recorder` (at `~/bin/wf-recorder`), `slurp`, `dmenu`, `libnotify`
+
+```bash
+recorder
+```
 
 ## Creating symlinks
 

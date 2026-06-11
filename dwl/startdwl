@@ -27,6 +27,17 @@ start_bars() {
         while read -r _; do pkill -RTMIN+4 someblocks 2>/dev/null; done &
 }
 
+idle_inhibit_when_playing() {
+    local inhibit_pid=""
+    while IFS= read -r status; do
+        if [ "$status" = "Playing" ]; then
+            [ -z "$inhibit_pid" ] && { wl-idle-inhibit & inhibit_pid=$!; }
+        else
+            [ -n "$inhibit_pid" ] && { kill "$inhibit_pid" 2>/dev/null; wait "$inhibit_pid" 2>/dev/null; inhibit_pid=""; }
+        fi
+    done < <(playerctl -F status 2>/dev/null)
+}
+
 autostart() {
     # Kill previous session's process group
     pgid_file="${XDG_RUNTIME_DIR:-/tmp}/dwl-bars.pgid"
@@ -45,10 +56,19 @@ autostart() {
     dbus-update-activation-environment --systemd DISPLAY=:1 XAUTHORITY=~/.Xauthority \
         XDG_CURRENT_DESKTOP=sway WAYLAND_DISPLAY="$WAYLAND_DISPLAY"
 
+    # dwl creates the Wayland socket before running this script, but may
+    # not be fully ready to accept client connections immediately. Poll
+    # until the socket file exists before launching any Wayland clients.
+    until [ -S "${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY:-wayland-0}" ]; do
+        sleep 0.05
+    done
+
     swayidle -w timeout 180 'lock-session' before-sleep 'lock-session' &
     swayidle timeout 300 'wlopm --off \*' resume 'wlopm --on \*' &
 
+    playerctld &
+    idle_inhibit_when_playing &
     start_bars
 }
 
-exec dwl -s "DOTFILES='$DOTFILES'; $(declare -f start_bars autostart); autostart" "$@"
+exec dwl -s "DOTFILES='$DOTFILES'; $(declare -f start_bars idle_inhibit_when_playing autostart); autostart" "$@"
