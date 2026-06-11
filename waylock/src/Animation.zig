@@ -95,10 +95,7 @@ pub fn next_frame(anim: *Animation, overlay_color: u24, overlay_alpha: u8) !?*wl
     const back = &anim.buffers[anim.back];
     if (back.in_use) return null;
 
-    const done = read_partial(anim.fd, back.data, &anim.partial_offset) catch |err| switch (err) {
-        error.WouldBlock => return null,
-        else => return err,
-    };
+    const done = try read_partial(anim.fd, back.data, &anim.partial_offset);
     if (!done) return null;
 
     blend(back.data, overlay_color, overlay_alpha);

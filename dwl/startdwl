@@ -6,8 +6,8 @@ DOTFILES="$(dirname "$(readlink -f "$0")")/.."
 [ -f "$HOME/.config/dwl/env" ] && . "$HOME/.config/dwl/env"
 
 start_bars() {
-    pkill -x someblocks 2>/dev/null
-    pkill -x somebar 2>/dev/null
+    pkill -u "$USER" -x someblocks 2>/dev/null
+    pkill -u "$USER" -x somebar 2>/dev/null
     swaybg -i "$DOTFILES/wallpaper.jpg" -m fill -c 1B2E4D &
     [ -n "$XDG_RUNTIME_DIR" ] && rm -f "$XDG_RUNTIME_DIR"/somebar-*
     swaync &
