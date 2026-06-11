@@ -171,9 +171,9 @@ static const Key keys[] = {
 	{ 0, XKB_KEY_XF86AudioMicMute,      spawn, SHCMD("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle") },
 
 	/* screenshots */
-	{ 0,                         XKB_KEY_Print,             spawn, SHCMD("grim -g \"$(slurp)\" - | wl-copy") },
+	{ 0,                         XKB_KEY_Print,             spawn, SHCMD("area=$(slurp) && grim -g \"$area\" - | wl-copy") },
 	{ 0,                         XKB_KEY_Scroll_Lock,       spawn, SHCMD("area=$(slurp) && grim -g \"$area\" - | swappy -f -") },
-	{ MODKEY|WLR_MODIFIER_CTRL,  XKB_KEY_4,                 spawn, SHCMD("grim -g \"$(slurp)\" - | tee \"$HOME/Pictures/Screenshots/$(date +%s).png\" | wl-copy") },
+	{ MODKEY|WLR_MODIFIER_CTRL,  XKB_KEY_4,                 spawn, SHCMD("area=$(slurp) && grim -g \"$area\" - | tee \"$HOME/Pictures/Screenshots/$(date +%s).png\" | wl-copy") },
 
 	/* session */
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_e,                quit,             {0} },
