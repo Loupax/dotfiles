@@ -39,10 +39,21 @@ static const Layout layouts[] = {
  * WARNING: negative values other than (-1, -1) cause problems with Xwayland clients due to
  * https://gitlab.freedesktop.org/xorg/xserver/-/issues/899 */
 static const MonitorRule monrules[] = {
-	/* name       mfact  nmaster scale layout                        rotate/reflect                x     y    */
-	{ "DP-3",     0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   0,    0    },
-	{ "eDP-1",    0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   0,    1080 },
-	{ NULL,       0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,   -1   },
+	/* name       mfact  nmaster scale layout                        rotate/reflect                x    y  */
+	{ "DP-2",     0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   0,   0  },
+	{ "eDP-1",    0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   0,   0  },
+	{ NULL,       0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
+};
+
+/* Monitor profiles: ordered most-specific first.  When all outputs named in a
+ * profile are connected, their positions are applied automatically on connect
+ * and disconnect.  Monitors not covered by any profile keep their monrule
+ * position (or auto-place if monrule uses -1,-1). */
+static const MonitorProfile profiles[] = {
+	/* External + laptop: DP-2 on top, eDP-1 below */
+	{ (const ProfileOutput[]){{"DP-2", 0, 0}, {"eDP-1", 0, 1080}}, 2 },
+	/* Laptop only: eDP-1 at origin */
+	{ (const ProfileOutput[]){{"eDP-1", 0, 0}}, 1 },
 };
 
 /* keyboard */

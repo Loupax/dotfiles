@@ -227,6 +227,16 @@ typedef struct {
 } MonitorRule;
 
 typedef struct {
+	const char *name;
+	int x, y;
+} ProfileOutput;
+
+typedef struct {
+	const ProfileOutput *outputs;
+	int count;
+} MonitorProfile;
+
+typedef struct {
 	struct wlr_pointer_constraint_v1 *constraint;
 	struct wl_listener destroy;
 } PointerConstraint;
@@ -250,6 +260,7 @@ typedef struct {
 
 /* function declarations */
 static void applybounds(Client *c, struct wlr_box *bbox);
+static void applyprofile(void);
 static void applyrules(Client *c);
 static void arrange(Monitor *m);
 static void arrangelayer(Monitor *m, struct wl_list *list,
@@ -368,6 +379,7 @@ static void dwl_wm_printstatus(Monitor *monitor);
 /* variables */
 static pid_t child_pid = -1;
 static int locked;
+static int profile_locked; /* re-entrancy guard for applyprofile() */
 static void *exclusive_focus;
 static struct wl_display *dpy;
 static struct wl_event_loop *event_loop;
@@ -2892,6 +2904,58 @@ unmapnotify(struct wl_listener *listener, void *data)
 }
 
 void
+applyprofile(void)
+{
+	/* Find the first profile whose outputs are all currently connected and
+	 * enabled, then reposition each of those monitors according to the
+	 * profile.  Profiles should be ordered from most-specific (most outputs)
+	 * to least-specific so the right one is chosen when multiple could match.
+	 *
+	 * profile_locked prevents re-entrancy: wlr_output_layout_add() emits the
+	 * layout-change event synchronously, which would call updatemons() →
+	 * applyprofile() again before we have finished applying the current one. */
+	size_t i;
+	int j, matched;
+	Monitor *m;
+	const MonitorProfile *p;
+	const ProfileOutput *o;
+
+	for (i = 0; i < LENGTH(profiles); i++) {
+		p = &profiles[i];
+
+		/* Check that every output named in this profile is connected. */
+		matched = 0;
+		for (j = 0; j < p->count; j++) {
+			wl_list_for_each(m, &mons, link) {
+				if (m->wlr_output->enabled &&
+				    strstr(m->wlr_output->name, p->outputs[j].name)) {
+					matched++;
+					break;
+				}
+			}
+		}
+		if (matched != p->count)
+			continue;
+
+		/* Profile matches — reposition each of its outputs. */
+		profile_locked = 1;
+		for (j = 0; j < p->count; j++) {
+			o = &p->outputs[j];
+			wl_list_for_each(m, &mons, link) {
+				if (m->wlr_output->enabled &&
+				    strstr(m->wlr_output->name, o->name)) {
+					wlr_output_layout_add(output_layout,
+					    m->wlr_output, o->x, o->y);
+					break;
+				}
+			}
+		}
+		profile_locked = 0;
+		return;
+	}
+}
+
+void
 updatemons(struct wl_listener *listener, void *data)
 {
 	/*
@@ -2924,6 +2988,10 @@ updatemons(struct wl_listener *listener, void *data)
 				&& !wlr_output_layout_get(output_layout, m->wlr_output))
 			wlr_output_layout_add_auto(output_layout, m->wlr_output);
 	}
+
+	/* Apply monitor profile positions if not already doing so. */
+	if (!profile_locked)
+		applyprofile();
 
 	/* Now that we update the output layout we can get its box */
 	wlr_output_layout_get_box(output_layout, NULL, &sgeom);
