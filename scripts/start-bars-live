@@ -28,12 +28,15 @@ swaync-client --subscribe 2>/dev/null | \
     while read -r _; do pkill -RTMIN+4 someblocks 2>/dev/null; done &
 
 # 4. Start the idle inhibitor in the background
-playerctl -F status 2>/dev/null | while IFS= read -r status; do
-    if [ "$status" = "Playing" ]; then
-        [ -z "$inhibit_pid" ] && { wl-idle-inhibit & inhibit_pid=$!; }
-    else
-        [ -n "$inhibit_pid" ] && { kill "$inhibit_pid" 2>/dev/null; wait "$inhibit_pid" 2>/dev/null; inhibit_pid=""; }
-    fi
-done &
+playerctl -F status 2>/dev/null | {
+    inhibit_pid=""
+    while IFS= read -r status; do
+        if [ "$status" = "Playing" ]; then
+            [ -z "$inhibit_pid" ] && { wl-idle-inhibit & inhibit_pid=$!; }
+        else
+            [ -n "$inhibit_pid" ] && { kill "$inhibit_pid" 2>/dev/null; wait "$inhibit_pid" 2>/dev/null; inhibit_pid=""; }
+        fi
+    done
+} &
 
 echo "Desktop services (wallpaper, bar, blocks, listeners, and idle inhibitor) started successfully!"
