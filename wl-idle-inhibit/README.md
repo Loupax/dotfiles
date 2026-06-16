@@ -46,13 +46,13 @@ wl-idle-inhibit
 # Requires playerctld so that playerctl -F status stays alive indefinitely.
 playerctld &
 pid=""
-while IFS= read -r status; do
+playerctl -F status 2>/dev/null | while IFS= read -r status; do
     if [ "$status" = "Playing" ]; then
         [ -z "$pid" ] && { wl-idle-inhibit & pid=$!; }
     else
         [ -n "$pid" ] && { kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null; pid=""; }
     fi
-done < <(playerctl -F status 2>/dev/null)
+done
 ```
 
 The `startdwl` script runs this wrapper automatically on session start.
