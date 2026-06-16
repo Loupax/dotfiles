@@ -1,0 +1,42 @@
+#!/bin/bash
+
+DOTFILES="$(dirname "$(readlink -f "$0")")/.."
+
+# Source machine-local env vars (not committed to repo).
+[ -f "$HOME/.config/dwl/env" ] && . "$HOME/.config/dwl/env"
+
+# 1. Clean up stale instances of bars/blocks
+pkill -u "$USER" -x someblocks 2>/dev/null
+pkill -u "$USER" -x somebar 2>/dev/null
+[ -n "$XDG_RUNTIME_DIR" ] && rm -f "$XDG_RUNTIME_DIR"/somebar-*
+
+# 2. Start background wallpaper, notification center, and bars
+pgrep -u "$USER" -x playerctld >/dev/null || playerctld &
+swaybg -i "$DOTFILES/wallpaper.jpg" -m fill -c 1B2E4D &
+swaync &
+somebar &
+someblocks &
+
+# 3. Start signal listeners for status bar updates (volume, media, notifications)
+pactl subscribe 2>/dev/null | grep --line-buffered "sink" | \
+    while read -r _; do pkill -RTMIN+2 someblocks 2>/dev/null; done &
+
+playerctl -F status 2>/dev/null | \
+    while read -r _; do pkill -RTMIN+3 someblocks 2>/dev/null; done &
+
+swaync-client --subscribe 2>/dev/null | \
+    while read -r _; do pkill -RTMIN+4 someblocks 2>/dev/null; done &
+
+# 4. Start the idle inhibitor in the background
+playerctl -F status 2>/dev/null | {
+    inhibit_pid=""
+    while IFS= read -r status; do
+        if [ "$status" = "Playing" ]; then
+            [ -z "$inhibit_pid" ] && { wl-idle-inhibit & inhibit_pid=$!; }
+        else
+            [ -n "$inhibit_pid" ] && { kill "$inhibit_pid" 2>/dev/null; wait "$inhibit_pid" 2>/dev/null; inhibit_pid=""; }
+        fi
+    done
+} &
+
+echo "Desktop services (wallpaper, bar, blocks, listeners, and idle inhibitor) started successfully!"
