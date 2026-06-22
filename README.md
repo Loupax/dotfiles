@@ -85,6 +85,26 @@ sudo apt-get install -y libinput-dev libxcb-icccm4-dev libpixman-1-dev libdrm-de
   xdg-desktop-portal xdg-desktop-portal-wlr
 ```
 
+**Fedora:**
+
+```bash
+sudo dnf copr enable erikreider/SwayNotificationCenter -y && \
+sudo dnf install -y \
+  gcc gcc-c++ meson ninja-build pkgconf-pkg-config \
+  wayland-devel wayland-protocols-devel libinput-devel libdrm-devel \
+  mesa-libEGL-devel mesa-libGL-devel pixman-devel libxkbcommon-devel \
+  libseat-devel hwdata libdisplay-info-devel libliftoff-devel \
+  libxcb-devel xcb-util-wm-devel xcb-util-renderutil-devel systemd-devel \
+  xorg-x11-server-Xwayland xorg-x11-server-Xwayland-devel \
+  cairo-devel pango-devel \
+  webkit2gtk4.1-devel gtk3-devel \
+  libX11-devel libXft-devel libXinerama-devel \
+  pam-devel \
+  swayidle wireplumber pipewire-pulseaudio wlopm swaync \
+  xdg-desktop-portal xdg-desktop-portal-wlr \
+  google-noto-color-emoji-fonts
+```
+
 | Package | Purpose |
 |---|---|
 | `xorg-xwayland` | X11 compatibility layer — required to run X11 apps (Steam, etc.) |

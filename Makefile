@@ -77,10 +77,13 @@ wl-idle-inhibit-install:
 	sudo install -m755 wl-idle-inhibit/wl-idle-inhibit /usr/local/bin/wl-idle-inhibit
 	rm wl-idle-inhibit/wl-idle-inhibit
 
+tmux-install:
+	[ -d $(DOTFILES)/tmux/plugins/tpm ] || git clone https://github.com/tmux-plugins/tpm $(DOTFILES)/tmux/plugins/tpm
+
 scripts-install:
 	mkdir -p ~/.local/bin
 	ln -sf $(DOTFILES)/scripts/dmenu_run_history ~/.local/bin/dmenu_run_history
 	ln -sf $(DOTFILES)/scripts/recorder ~/.local/bin/recorder
 	ln -sf $(DOTFILES)/sessionizer/tmux-sessionizer ~/.local/bin/tmux-sessionizer
 
-install: dwl-install st-install dmenu-install tabbed-install surf-install waylock-install scripts-install wl-idle-inhibit-install
+install: dwl-install st-install dmenu-install tabbed-install surf-install waylock-install scripts-install wl-idle-inhibit-install tmux-install

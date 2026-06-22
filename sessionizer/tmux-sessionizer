@@ -7,6 +7,9 @@ cd "$HOME" || exit
 
 # Get directories (you can add more paths here later, like 'work' or '.config')
 dirs=$(find src -mindepth 1 -maxdepth 1 -type d 2>/dev/null)
+dirs="$dirs"$'\n'
+dirs="${dirs}Downloads"$'\n'
+dirs="${dirs}Documents"$'\n'
 
 # Get running tmux sessions
 sessions=$(tmux ls -F "#{session_name}" 2>/dev/null)
