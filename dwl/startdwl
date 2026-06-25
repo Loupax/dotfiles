@@ -1,86 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 
 DOTFILES="$(dirname "$(readlink -f "$0")")/.."
 
 # Source machine-local env vars (not committed to repo).
 [ -f "$HOME/.config/dwl/env" ] && . "$HOME/.config/dwl/env"
 
-start_bars() {
-    # 1. Use $(id -un) instead of $USER to guarantee it resolves.
-    local my_user
-    my_user=$(id -un)
-
-    # 2. Send the kill signal to the old bar and blocks
-    pkill -u "$my_user" -x someblocks 2>/dev/null
-    pkill -u "$my_user" -x somebar 2>/dev/null
-
-    # 3. CRITICAL: Wait for them to actually die before proceeding.
-    # This prevents the race condition where new instances spawn over old ones.
-    while pgrep -u "$my_user" -x "someblocks|somebar" >/dev/null 2>&1; do
-        sleep 0.1
-    done
-
-    swaybg -i "$DOTFILES/wallpaper.jpg" -m fill -c 1B2E4D &
-    
-    [ -n "$XDG_RUNTIME_DIR" ] && rm -f "$XDG_RUNTIME_DIR"/somebar-*
-    
-    swaync &
-    somebar &
-    someblocks &
-
-    # The background signal pipelines remain unchanged
-    pactl subscribe 2>/dev/null | grep --line-buffered "sink" | \
-        while read -r _; do pkill -RTMIN+2 someblocks 2>/dev/null; done &
-
-    playerctl -F status 2>/dev/null | \
-        while read -r _; do pkill -RTMIN+3 someblocks 2>/dev/null; done &
-
-    swaync-client --subscribe 2>/dev/null | \
-        while read -r _; do pkill -RTMIN+4 someblocks 2>/dev/null; done &
-}
-
-idle_inhibit_when_playing() {
-    local inhibit_pid=""
-    playerctl -F status 2>/dev/null | while IFS= read -r status; do
-        if [ "$status" = "Playing" ]; then
-            [ -z "$inhibit_pid" ] && { wl-idle-inhibit & inhibit_pid=$!; }
-        else
-            [ -n "$inhibit_pid" ] && { kill "$inhibit_pid" 2>/dev/null; wait "$inhibit_pid" 2>/dev/null; inhibit_pid=""; }
-        fi
-    done
-}
-
-autostart() {
-    # Kill previous session's process group
-    pgid_file="${XDG_RUNTIME_DIR:-/tmp}/dwl-bars.pgid"
-    if [ -f "$pgid_file" ]; then
-        old_pgid=$(cat "$pgid_file")
-        case "$old_pgid" in
-            *[!0-9]*|"") ;;
-            *) [ "$old_pgid" -gt 1 ] && kill -- -"$old_pgid" 2>/dev/null ;;
-        esac
-    fi
-    ps -o pgid= -p $$ | tr -d ' ' > "$pgid_file"
-
-    rm -f /tmp/.X11-unix/X1 /tmp/.X1-lock
-    xauth add :1 . $(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
-    Xwayland :1 -auth ~/.Xauthority -nolisten tcp -rootless &
-    dbus-update-activation-environment --systemd DISPLAY=:1 XAUTHORITY=~/.Xauthority \
-        XDG_CURRENT_DESKTOP=sway WAYLAND_DISPLAY="$WAYLAND_DISPLAY"
-
-    # dwl creates the Wayland socket before running this script, but may
-    # not be fully ready to accept client connections immediately. Poll
-    # until the socket file exists before launching any Wayland clients.
-    until [ -S "${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY:-wayland-0}" ]; do
-        sleep 0.05
-    done
-
-    swayidle -w timeout 180 'lock-session' before-sleep 'lock-session' &
-    swayidle timeout 300 'wlopm --off \*' resume 'wlopm --on \*' &
-
-    playerctld &
-    idle_inhibit_when_playing &
-    start_bars
-}
-
-exec dwl -s "DOTFILES='$DOTFILES'; $(declare -f start_bars idle_inhibit_when_playing autostart); autostart" "$@"
+exec dwl -s "DOTFILES='$DOTFILES'; . '$DOTFILES/dwl/autostart.sh'" "$@"
