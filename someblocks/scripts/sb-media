@@ -22,7 +22,7 @@ else
             pkill -RTMIN+3 someblocks
         done
         rm -f "$pidfile"
-    ) &
+    ) >/dev/null 2>&1 &
     echo $! > "$pidfile"
 fi
 
