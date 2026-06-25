@@ -1,5 +1,7 @@
 #!/bin/sh
-# Sourced by dwl via -s. DOTFILES must be set by the caller.
+# Sourced by dwl via -s, or run directly for debugging.
+# DOTFILES is injected by startdwl when sourced; derived from script location otherwise.
+: "${DOTFILES:="$(dirname "$(readlink -f "$0")")/.."}"
 
 start_bars() {
     local my_user
