@@ -9,7 +9,7 @@ start_bars() {
     pkill -u "$my_user" -x somebar 2>/dev/null
 
     while pgrep -u "$my_user" -x "someblocks|somebar" >/dev/null 2>&1; do
-        sleep 0.1
+        sleep 1
     done
 
     swaybg -i "$DOTFILES/wallpaper.jpg" -m fill -c 1B2E4D &
